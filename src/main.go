@@ -15,11 +15,11 @@ const Height = 48.0
 
 type Camera struct {
   projection Matrix4
-  transform Matrix4
+  transform Transform
 }
 
 type Mesh struct {
-  transform Matrix4
+  transform Transform
   vertices []Point3
   lines []Line
 }
@@ -27,7 +27,7 @@ type Mesh struct {
 type Line [2]int64
 
 func (self Mesh) Draw(term *Terminal, camera Camera, char rune) {
-  mvp := camera.projection.Multiply(camera.transform).Multiply(self.transform)
+  mvp := camera.projection.Multiply(camera.transform.Matrix()).Multiply(self.transform.Matrix())
 
   hw := Width / 2.0
   hh := Height / 2.0
@@ -68,11 +68,15 @@ func main() {
 
   camera := Camera {
     projection: NewMatrix4Perspective(Width / Height, 45, 0.1, 1000.0),
-    transform: NewMatrix4Identity(),
+    transform: NewTransform(),
   }
 
   cube := Mesh {
-    transform: NewMatrix4Translation(0.0, 0.0, -5.0),
+    transform: Transform {
+      Translation: Vector3 { 0, 0, -5 },
+      Rotation: Vector3 { 0, 0, 0 },
+      Scaling: Vector3 { 1, 1, 1 },
+    },
     vertices: []Point3{
       Point3 {-1, -1, -1},
       Point3 { 1, -1, -1},
@@ -121,9 +125,10 @@ func main() {
       cube.Draw(&term, camera, ' ')
 
       // Move the cube
-      cube.transform = cube.transform.Multiply(
-        NewMatrix4Rotation(0.25 * m.Pi * dt, 0.5 * m.Pi * dt, 0.0),
-      )
+      cube.transform.Rotation[0] += 0.25 * m.Pi * dt
+      cube.transform.Rotation[1] += 0.5 * m.Pi * dt
+      cube.transform.Translation[0] = m.Cos(t * 2)
+      cube.transform.Translation[2] = -8 - m.Sin(t * 1.2) * 5
 
       // Draw new cube
       cube.Draw(&term, camera, '.')
@@ -131,6 +136,9 @@ func main() {
 
     time.Sleep((1000 / framerate) * time.Millisecond)
     t += dt
+
+
+    // FIXME catch ctrl+c and clean up terminal
   }
 
   term.MainScreen()

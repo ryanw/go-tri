@@ -15,7 +15,7 @@ func NewTerminal(width, height int) Terminal {
   return Terminal {
     width: width,
     height: height,
-    buffer: *bufio.NewWriterSize(os.Stdout, 1024000),
+    buffer: *bufio.NewWriterSize(os.Stdout, 4096),
   }
 }
 
