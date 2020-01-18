@@ -2,6 +2,8 @@ package main
 
 import (
   "time"
+  "os"
+  "os/signal"
   m "math"
   . "./terminal"
   . "./geom"
@@ -64,6 +66,7 @@ func main() {
   term := NewTerminal(Width, Height)
 
   term.AltScreen()
+  term.HideCursor()
   term.Clear()
 
   camera := Camera {
@@ -115,6 +118,20 @@ func main() {
     },
   }
 
+  c := make(chan os.Signal, 1)
+  signal.Notify(c, os.Interrupt)
+  go func(){
+    // Catch Ctrl+C and cleanup the terminal
+    for _ = range c {
+      term.MainScreen()
+      term.ShowCursor()
+      term.Flush()
+      os.Exit(0)
+    }
+  }()
+
+
+  // Main loop
   t := 1.0
   for {
     dt := 1.0 / float64(framerate)
@@ -136,11 +153,6 @@ func main() {
 
     time.Sleep((1000 / framerate) * time.Millisecond)
     t += dt
-
-
-    // FIXME catch ctrl+c and clean up terminal
   }
-
-  term.MainScreen()
 }
 

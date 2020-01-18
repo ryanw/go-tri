@@ -29,6 +29,14 @@ func (self *Terminal) MainScreen() {
   self.CSI("?1049l")
 }
 
+func (self *Terminal) ShowCursor() {
+  self.CSI("?25h")
+}
+
+func (self *Terminal) HideCursor() {
+  self.CSI("?25l")
+}
+
 func (self *Terminal) PlotChar(position Position, char rune) {
   if position.X < 0 || position.Y < 0 || position.X >= self.width || position.Y >= self.height {
     return

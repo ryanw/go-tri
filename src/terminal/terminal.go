@@ -27,6 +27,10 @@ func (self *Terminal) Resize(width, height int) {
 
 func (self *Terminal) Draw(callback func()) {
   callback()
+  self.Flush()
+}
+
+func (self *Terminal) Flush() {
   self.buffer.Flush()
 }
 
