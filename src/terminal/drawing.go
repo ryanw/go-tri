@@ -1,41 +1,47 @@
 package terminal
 
 import (
-  . "fmt"
   . "math"
 )
 
 type Position struct {
-  X, Y int32
+  X, Y int
 }
 
-func CSI(format string, a ...interface{}) {
-  Printf("\x1b[")
-  Printf(format, a...)
+func (self *Terminal) CSI(format string, a ...interface{}) {
+  self.Write("\x1b[")
+  self.Write(format, a...)
 }
 
-func MoveTo(position Position) {
-  CSI("%d;%dH", position.Y, position.X)
+func (self *Terminal) MoveTo(position Position) {
+  self.CSI("%d;%dH", position.Y, position.X)
 }
 
-func Clear() {
-  CSI("2J")
+func (self *Terminal) Clear() {
+  self.CSI("2J")
 }
 
-func AltScreen() {
-  CSI("?1049h")
+func (self *Terminal) AltScreen() {
+  self.CSI("?1049h")
 }
 
-func MainScreen() {
-  CSI("?1049l")
+func (self *Terminal) MainScreen() {
+  self.CSI("?1049l")
 }
 
-func PlotChar(position Position, char rune) {
-  MoveTo(position)
-  Write(string(char))
+func (self *Terminal) PlotChar(position Position, char rune) {
+  if position.X < 0 || position.Y < 0 || position.X >= self.width || position.Y >= self.height {
+    return
+  }
+  self.MoveTo(position)
+  self.Write(string(char))
 }
 
-func PlotLine(start, end Position, char rune) {
+func (self *Terminal) ClearLine(start, end Position) {
+  self.PlotLine(start, end, ' ')
+}
+
+func (self *Terminal) PlotLine(start, end Position, char rune) {
   x0 := float64(start.X)
   y0 := float64(start.Y)
   x1 := float64(end.X)
@@ -63,7 +69,17 @@ func PlotLine(start, end Position, char rune) {
   }
 
   for {
-    PlotChar(Position { int32(x0), int32(y0) }, char)
+    if char != ' ' && int(x0) == start.X && int(y0) == start.Y {
+      self.PlotChar(Position { int(x0), int(y0) }, '█')
+
+    } else if char != ' ' && int(x0) == end.X && int(y0) == end.Y {
+      self.PlotChar(Position { int(x0), int(y0) }, '█')
+
+    } else {
+      self.PlotChar(Position { int(x0), int(y0) }, char)
+
+    }
+
     if x0 == x1 && y0 == y1 {
       break
     }
@@ -78,12 +94,5 @@ func PlotLine(start, end Position, char rune) {
       y0 += sy
     }
   }
-
-  MoveTo(start)
-  Printf(string(char))
-}
-
-func Write(str string) {
-  Printf(str)
 }
 
