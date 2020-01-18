@@ -4,6 +4,7 @@ import (
   "time"
   "os"
   "os/signal"
+  "syscall"
   m "math"
   . "./terminal"
   . "./geom"
@@ -11,20 +12,18 @@ import (
 )
 
 const framerate = 30
-// FIXME calculate from terminal size
-const Width = 80.0
-const Height = 48.0
-
 
 func main() {
-  term := NewTerminal(Width, Height)
+  term := NewTerminal()
+
+  width, height := term.Size()
 
   term.AltScreen()
   term.HideCursor()
   term.Clear()
 
   camera := Camera {
-    Projection: NewMatrix4Perspective(Width / Height, 45, 0.1, 1000.0),
+    Projection: NewMatrix4Perspective(float64(width) / float64(height), 45, 0.1, 1000.0),
     Transform: NewTransform(),
   }
 
@@ -81,6 +80,16 @@ func main() {
       term.ShowCursor()
       term.Flush()
       os.Exit(0)
+    }
+  }()
+
+  // Listen for resize
+  cr := make(chan os.Signal, 1)
+  signal.Notify(cr, syscall.SIGWINCH)
+  go func(){
+    for _ = range cr {
+      term.Clear()
+      term.UpdateSize()
     }
   }()
 
