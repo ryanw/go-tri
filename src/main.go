@@ -7,6 +7,7 @@ import (
   m "math"
   . "./terminal"
   . "./geom"
+  . "./mesh"
 )
 
 const framerate = 30
@@ -14,53 +15,6 @@ const framerate = 30
 const Width = 80.0
 const Height = 48.0
 
-
-type Camera struct {
-  projection Matrix4
-  transform Transform
-}
-
-type Mesh struct {
-  transform Transform
-  vertices []Point3
-  lines []Line
-}
-
-type Line [2]int64
-
-func (self Mesh) Draw(term *Terminal, camera Camera, char rune) {
-  mvp := camera.projection.Multiply(camera.transform.Matrix()).Multiply(self.transform.Matrix())
-
-  hw := Width / 2.0
-  hh := Height / 2.0
-
-  for _, line := range self.lines {
-    start := mvp.TransformPoint3(self.vertices[line[0]])
-    end := mvp.TransformPoint3(self.vertices[line[1]])
-
-    x1 := start[0]
-    y1 := start[1]
-    x2 := end[0]
-    y2 := end[1]
-
-    // Center and scale to display size
-    x1 *= hw
-    x2 *= hw
-    y1 *= hh
-    y2 *= hh
-
-    x1 += hw
-    x2 += hw
-    y1 += hh
-    y2 += hh
-
-    term.PlotLine(
-      Position { int(x1), int(y1) },
-      Position { int(x2), int(y2) },
-      char,
-    )
-  }
-}
 
 func main() {
   term := NewTerminal(Width, Height)
@@ -70,17 +24,17 @@ func main() {
   term.Clear()
 
   camera := Camera {
-    projection: NewMatrix4Perspective(Width / Height, 45, 0.1, 1000.0),
-    transform: NewTransform(),
+    Projection: NewMatrix4Perspective(Width / Height, 45, 0.1, 1000.0),
+    Transform: NewTransform(),
   }
 
   cube := Mesh {
-    transform: Transform {
+    Transform: Transform {
       Translation: Vector3 { 0, 0, -5 },
       Rotation: Vector3 { 0, 0, 0 },
       Scaling: Vector3 { 1, 1, 1 },
     },
-    vertices: []Point3{
+    Vertices: []Point3{
       Point3 {-1, -1, -1},
       Point3 { 1, -1, -1},
       Point3 { 1,  1, -1},
@@ -91,7 +45,7 @@ func main() {
       Point3 { 1,  1,  1},
       Point3 {-1,  1,  1},
     },
-    lines: []Line{
+    Lines: []Line{
       // Front
       Line {0, 1},
       Line {1, 2},
@@ -142,10 +96,10 @@ func main() {
       cube.Draw(&term, camera, ' ')
 
       // Move the cube
-      cube.transform.Rotation[0] += 0.25 * m.Pi * dt
-      cube.transform.Rotation[1] += 0.5 * m.Pi * dt
-      cube.transform.Translation[0] = m.Cos(t * 2)
-      cube.transform.Translation[2] = -8 - m.Sin(t * 1.2) * 5
+      cube.Transform.Rotation[0] += 0.25 * m.Pi * dt
+      cube.Transform.Rotation[1] += 0.5 * m.Pi * dt
+      cube.Transform.Translation[0] = m.Cos(t * 2)
+      cube.Transform.Translation[2] = -8 - m.Sin(t * 1.2) * 5
 
       // Draw new cube
       cube.Draw(&term, camera, '.')

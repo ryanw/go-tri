@@ -2,6 +2,7 @@ package terminal
 
 import (
   . "math"
+  . "../geom"
 )
 
 type Position struct {
@@ -45,10 +46,28 @@ func (self *Terminal) PlotChar(position Position, char rune) {
   self.Write(string(char))
 }
 
+// Draw vector line cusing coordiantes between -1.0 and +1.0
+// It scales to the screen size
+func (self *Terminal) DrawLine(start, end Point3, char rune) {
+  // Center and scale coordinates
+  hw := float64(self.width) / 2
+  hh := float64(self.height) / 2
+  startPos := Position {
+    int(start[0] * hw + hw),
+    int(start[1] * hh + hh),
+  }
+  endPos := Position {
+    int(end[0] * hw + hw),
+    int(end[1] * hh + hh),
+  }
+  self.PlotLine(startPos, endPos, char)
+}
+
 func (self *Terminal) ClearLine(start, end Position) {
   self.PlotLine(start, end, ' ')
 }
 
+// Draw a line using absolute character positions
 func (self *Terminal) PlotLine(start, end Position, char rune) {
   x0 := float64(start.X)
   y0 := float64(start.Y)
