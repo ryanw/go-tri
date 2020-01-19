@@ -96,15 +96,18 @@ func (self *Terminal) PlotLine(start, end Position, char rune) {
   }
 
   for {
-    if char != ' ' && int(x0) == start.X && int(y0) == start.Y {
-      self.PlotChar(Position { int(x0), int(y0) }, '█')
-
-    } else if char != ' ' && int(x0) == end.X && int(y0) == end.Y {
-      self.PlotChar(Position { int(x0), int(y0) }, '█')
-
-    } else {
+    if char == ' ' {
       self.PlotChar(Position { int(x0), int(y0) }, char)
+    } else {
+      if int(x0) == start.X && int(y0) == start.Y {
+        self.PlotChar(Position { int(x0), int(y0) }, '⬤')
 
+      } else if int(x0) == end.X && int(y0) == end.Y {
+        self.PlotChar(Position { int(x0), int(y0) }, '⬤')
+
+      } else {
+        self.PlotChar(Position { int(x0), int(y0) }, char)
+      }
     }
 
     if x0 == x1 && y0 == y1 {

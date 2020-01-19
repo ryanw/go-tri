@@ -83,7 +83,7 @@ func main() {
       sphere.Transform.Rotation[1] += 0.5 * m.Pi * dt
       sphere.Transform.Translation[2] = -4 - m.Sin(t * 1.2) * 2
 
-      cube.Draw(&term, camera, 'X')
+      cube.Draw(&term, camera, '·')
       sphere.Draw(&term, camera, '·')
     })
 
