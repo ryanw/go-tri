@@ -56,7 +56,7 @@ func main() {
 
   sphere := NewMeshSphere()
   sphere.Transform = Transform {
-    Translation: Vector3 { -1.5, 0, -4 },
+    Translation: Vector3 { -0.5, 0, -4 },
     Rotation: Vector3 { 0, 0, 0 },
     Scaling: Vector3 { 1, 1, 1 },
   }

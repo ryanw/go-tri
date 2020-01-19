@@ -72,7 +72,7 @@ func NewMeshCube() Mesh {
 }
 
 func NewMeshSphere() Mesh {
-  xSegments := 5.0
+  xSegments := 8.0
   ySegments := 6.0
 
   mesh := Mesh {
@@ -83,21 +83,23 @@ func NewMeshSphere() Mesh {
     },
   }
 
-  for y := 0.0; y <= ySegments; y++ {
-    lat := math.Pi * (y + 2) / ySegments
-    for x := 0.0; x <= xSegments; x++ {
+  for y := ySegments * -0.5; y <= ySegments * 0.5; y++ {
+    lat := math.Pi * (y / ySegments)
+
+    for x := xSegments * -0.5; x <= xSegments * 0.5; x++ {
       lng := 2.0 * math.Pi * x / xSegments
+
       point := SphericalToCartesian(lng, lat)
       mesh.Vertices = append(mesh.Vertices, point)
 
       if len(mesh.Vertices) > 1 {
         // Horizontal line
-        if x > 0 {
+        if x > xSegments * -0.5 {
           mesh.Lines = append(mesh.Lines, Line { int64(len(mesh.Vertices) - 2), int64(len(mesh.Vertices) - 1) })
         }
 
         // Vertical line
-        if y > 0 {
+        if y > ySegments * -0.5 {
           mesh.Lines = append(mesh.Lines, Line { int64(len(mesh.Vertices)) - int64(xSegments) - 2, int64(len(mesh.Vertices) - 1) })
         }
       }
