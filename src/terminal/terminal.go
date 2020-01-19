@@ -61,3 +61,8 @@ func (t *Terminal) Write(format string, a ...interface{}) {
   fmt.Fprintf(&t.buffer, format, a...)
 }
 
+func (t *Terminal) WriteRune(char rune) {
+  fmt.Fprint(&t.buffer, string(char))
+}
+
+
