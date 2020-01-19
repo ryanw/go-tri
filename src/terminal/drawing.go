@@ -78,6 +78,10 @@ func (t *Terminal) HideCursor() {
   t.CSI("?25l")
 }
 
+func (t *Terminal) Color(code uint8) {
+  t.CSI("%dm", int(code) + 30)
+}
+
 func (t *Terminal) PlotChar(position Position, char rune) {
   if position.X < 0 || position.Y < 0 || position.X >= t.width || position.Y >= t.height {
     return
@@ -140,12 +144,18 @@ func (t *Terminal) PlotLine(start, end Position, char rune) {
 
   // Move to start of line
   t.MoveTo(Position { int(x0), int(y0) })
+  color := uint8(0)
   for {
     symbol := char
     if symbol != ' ' {
       // Draw dots at the ends
       if (int(x0) == start.X && int(y0) == start.Y) || (int(x0) == end.X && int(y0) == end.Y) {
-        symbol = '⬤'
+        color = 5
+        t.Color(color)
+        symbol = '♦'
+      } else if color == 5 {
+        color = 3
+        t.Color(color)
       }
     }
     if x0 >= 0 && y0 >= 0 && int(x0) < t.width && int(y0) < t.height {
