@@ -72,9 +72,6 @@ func main() {
     dt := 1.0 / float64(framerate)
 
     term.Draw(func() {
-      cube.Draw(&term, camera, ' ')
-      sphere.Draw(&term, camera, ' ')
-
       cube.Transform.Rotation[0] += 0.25 * m.Pi * dt
       cube.Transform.Rotation[1] += 0.5 * m.Pi * dt
       cube.Transform.Translation[2] = -8 - m.Sin(t * 0.8) * 2
@@ -83,8 +80,9 @@ func main() {
       sphere.Transform.Rotation[1] += 0.5 * m.Pi * dt
       sphere.Transform.Translation[2] = -4 - m.Sin(t * 1.2) * 2
 
-      cube.Draw(&term, camera, '▪')
-      sphere.Draw(&term, camera, '▪')
+      term.Clear()
+      cube.Draw(&term, camera, '•')
+      sphere.Draw(&term, camera, '•')
     })
 
     time.Sleep((1000 / framerate) * time.Millisecond)
