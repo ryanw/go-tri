@@ -73,7 +73,7 @@ func NewMeshCube() Mesh {
 
 func NewMeshSphere() Mesh {
   xSegments := 5.0
-  ySegments := 5.0
+  ySegments := 6.0
 
   mesh := Mesh {
     Transform: NewTransform(),
@@ -84,7 +84,7 @@ func NewMeshSphere() Mesh {
   }
 
   for y := 0.0; y <= ySegments; y++ {
-    lat := 2.0 * math.Pi * y / ySegments
+    lat := math.Pi * (y + 2) / ySegments
     for x := 0.0; x <= xSegments; x++ {
       lng := 2.0 * math.Pi * x / xSegments
       point := SphericalToCartesian(lng, lat)
