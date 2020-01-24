@@ -8,6 +8,7 @@ import (
   "unsafe"
 )
 
+
 type WinSize struct {
   rows    uint16
   cols    uint16
@@ -40,12 +41,20 @@ func (t *Terminal) UpdateSize() {
     uintptr(unsafe.Pointer(&winSize)),
   )
 
-  t.width = int(winSize.cols) + 1
-  t.height = int(winSize.rows) + 1
+  t.width = int(winSize.cols)
+  t.height = int(winSize.rows)
 }
 
 func (t *Terminal) Size() (int, int) {
   return t.width, t.height
+}
+
+func (t *Terminal) Width() int {
+  return t.width
+}
+
+func (t *Terminal) Height() int {
+  return t.height
 }
 
 func (t *Terminal) Draw(callback func()) {
@@ -64,5 +73,3 @@ func (t *Terminal) Write(format string, a ...interface{}) {
 func (t *Terminal) WriteRune(char rune) {
   fmt.Fprint(&t.buffer, string(char))
 }
-
-

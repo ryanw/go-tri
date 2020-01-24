@@ -4,6 +4,7 @@ import (
   "math"
   . "../geom"
   . "../terminal"
+  . "../canvas"
 )
 
 type Line [2]int64
@@ -27,6 +28,8 @@ func (self *Mesh) Draw(term *Terminal, camera Camera, char rune) {
   }
 }
 
+func (self *Mesh) DrawInto(*Canvas, *Camera) {
+}
 
 func NewMeshCube() Mesh {
   return Mesh {

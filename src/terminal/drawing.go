@@ -55,7 +55,7 @@ func (t *Terminal) Up(amount int) {
 }
 
 func (t *Terminal) MoveTo(position Position) {
-  t.CSI("%d;%dH", position.Y, position.X)
+  t.CSI("%d;%dH", position.Y + 1, position.X + 1)
 }
 
 func (t *Terminal) Clear() {
@@ -190,4 +190,3 @@ func (t *Terminal) PlotLine(start, end Position, char rune) {
     }
   }
 }
-
