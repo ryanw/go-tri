@@ -6,11 +6,11 @@ import (
   "os/signal"
   "syscall"
   m "math"
-  . "./canvas"
-  . "./terminal"
-  . "./geom"
-  . "./mesh"
-  . "./renderer"
+  . "../canvas"
+  . "../terminal"
+  . "../geom"
+  . "../mesh"
+  . "../renderer"
 )
 
 const framerate = 30
