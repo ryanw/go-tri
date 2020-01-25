@@ -1,9 +1,9 @@
 package mesh
 
 import (
-	. "../geom"
-	. "../terminal"
 	"math"
+	. "tri/geom"
+	. "tri/terminal"
 )
 
 type Line [2]int

@@ -1,8 +1,8 @@
 package terminal
 
 import (
-	. "../geom"
 	. "math"
+	. "tri/geom"
 )
 
 type Position struct {

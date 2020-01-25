@@ -1,9 +1,9 @@
 package renderer
 
 import (
-	. "../canvas"
-	. "../geom"
-	. "../mesh"
+	. "tri/canvas"
+	. "tri/geom"
+	. "tri/mesh"
 )
 
 type Renderer struct {

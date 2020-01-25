@@ -1,11 +1,11 @@
 package canvas
 
 import (
-	. "../geom"
-	. "../terminal"
 	"fmt"
 	. "math"
 	"sort"
+	. "tri/geom"
+	. "tri/terminal"
 )
 
 type Triangle [3][2]int

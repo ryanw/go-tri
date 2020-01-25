@@ -1,16 +1,16 @@
 package main
 
 import (
-	. "../canvas"
-	. "../geom"
-	. "../mesh"
-	. "../renderer"
-	. "../terminal"
 	m "math"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+	. "tri/canvas"
+	. "tri/geom"
+	. "tri/mesh"
+	. "tri/renderer"
+	. "tri/terminal"
 )
 
 const framerate = 30
