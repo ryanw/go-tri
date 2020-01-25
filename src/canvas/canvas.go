@@ -7,7 +7,6 @@ import (
   . "../geom"
 )
 
-type Color uint32
 type Triangle [3][2]int;
 type TriangleFloat [3][2]float64;
 
@@ -28,22 +27,6 @@ func (t *Triangle) ToFloat() TriangleFloat {
   }
 }
 
-func (c *Color) ToRgb() (uint8, uint8, uint8) {
-  return 0, 0, 0
-}
-
-func (c *Color) ToRgba() (uint8, uint8, uint8, uint8) {
-  return 0, 0, 0, 0
-}
-
-func (c Color) ToAnsi() uint16 {
-  //a := ((c & 0xff000000) >> 24) / 51;
-  r := ((c & 0x00ff0000) >> 16) / 51;
-  g := ((c & 0x0000ff00) >> 8) / 51;
-  b := ((c & 0x000000ff) >> 0) / 51;
-  return uint16(16 + 36 * r + 6 * g + b)
-}
-
 type Cell struct {
   Fg Color
   Bg Color
@@ -53,6 +36,17 @@ type Cell struct {
 
 func (c *Cell) AnsiColor() string {
   return fmt.Sprintf("\x1b[38;5;%dm\x1b[48;5;%dm", c.Fg.ToAnsi(), c.Bg.ToAnsi())
+}
+
+func (c *Cell) Ansi24BitColor() string {
+  fr := ((c.Fg & 0x00ff0000) >> 16)
+  fg := ((c.Fg & 0x0000ff00) >> 8)
+  fb := ((c.Fg & 0x000000ff) >> 0)
+  br := ((c.Bg & 0x00ff0000) >> 16)
+  bg := ((c.Bg & 0x0000ff00) >> 8)
+  bb := ((c.Bg & 0x000000ff) >> 0)
+
+  return fmt.Sprintf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm", fr, fg, fb, br, bg, bb)
 }
 
 type Canvas struct {
@@ -485,7 +479,7 @@ func (c *Canvas) Present(term *Terminal) {
         cursorFg = backCell.Fg
         cursorBg = backCell.Bg
         // Write pixel colour
-        term.Write(backCell.AnsiColor())
+        term.Write(backCell.Ansi24BitColor())
       }
 
       if frontCell.Fg != backCell.Fg || frontCell.Bg != backCell.Bg || backCell.Sprite != frontCell.Sprite {

@@ -30,6 +30,8 @@ func (r *Renderer) RenderLineMesh(canvas *Canvas, mesh *LineMesh) {
 
 func (r *Renderer) RenderTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
   camera := &r.Camera
+  lightDir := Vector3 { 0.4, -0.7, -0.3 }.Normalize()
+  _ = lightDir
 
   mvp := camera.Projection
   mvp = mvp.Multiply(camera.Transform.Matrix())
@@ -42,12 +44,26 @@ func (r *Renderer) RenderTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
       mesh.Vertices[tri[2]],
     })
 
-    color := Color(mesh.Colors[i])
+    normal := mvp.TransformVector3(mesh.Normals[i])
+    ambient := 0.2
+    diffuse := normal.Dot(lightDir)
+    light := ambient + diffuse
+    if light < ambient {
+      light = ambient
+    }
+    if light > 1 {
+      light = 1
+    }
+    color := Vector3FromColor(mesh.Colors[i])
+    color = color.Scale(light)
+
+
+    // Calculate diffuse lighting
 
     canvas.DrawTriangle3(triangle, Cell {
-      Fg: color,
-      Bg: color,
-      Sprite: '.',
+      Fg: 0x00,
+      Bg: color.ToColor(),
+      Sprite: ' ',
     })
   }
 }

@@ -144,6 +144,16 @@ func (m Matrix4) MultiplyVector4(vec Vector4) Vector4 {
   }
 }
 
+func (m Matrix4) TransformVector3(vector Vector3) Vector3 {
+  vec := m.MultiplyVector4(Vector4 { vector[0], vector[1], vector[2], 0 })
+
+  return Vector3 {
+    vec[0],
+    vec[1],
+    vec[2],
+  }
+}
+
 func (m Matrix4) TransformPoint3(point Point3) Point3 {
   vec := m.MultiplyVector4(Vector4 { point[0], point[1], point[2], 1 })
 

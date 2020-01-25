@@ -8,4 +8,4 @@ It's just some spinning 3D shapes rendered in your terminal.
     go run src/main.go
 
 
-![Screenshot](https://i.imgur.com/zMqMyGp.gif)
+![Screenshot](https://i.imgur.com/MNGcgRW.gif)

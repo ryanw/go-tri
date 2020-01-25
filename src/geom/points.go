@@ -70,3 +70,20 @@ func (p Point2) Round() Point2 {
     Round(p[1]),
   }
 }
+
+func (p Point3) Normalize() Point3 {
+  mag := p.Magnitude()
+  return Point3 {
+    p.X() / mag,
+    p.Y() / mag,
+    p.Z() / mag,
+  }
+}
+
+func (p Point3) Magnitude() float64 {
+  return Sqrt(Pow(p.X(), 2) + Pow(p.Y(), 2) + Pow(p.Z(), 2))
+}
+
+func (v *Vector3) Point3FromVector3() Point3 {
+  return Point3 { v[0], v[1], v[2] }
+}

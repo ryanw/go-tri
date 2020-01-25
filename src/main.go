@@ -86,10 +86,10 @@ func main() {
   for {
     dt := 1.0 / float64(framerate)
 
-    cube.Transform.Rotation[0] += 0.25 * m.Pi * dt
+    cube.Transform.Rotation[0] += 0.15 * m.Pi * dt
     cube.Transform.Rotation[1] += 0.5 * m.Pi * dt
     cube.Transform.Translation[2] = -8 - m.Sin(t * 0.8) * 2
-    triCube.Transform.Rotation[0] += 0.25 * m.Pi * dt
+    triCube.Transform.Rotation[0] += 0.15 * m.Pi * dt
     triCube.Transform.Rotation[1] += 0.5 * m.Pi * dt
     triCube.Transform.Translation[2] = -8 - m.Sin(t * 0.8) * 2
 
