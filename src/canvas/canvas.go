@@ -1,12 +1,32 @@
 package canvas
 import (
   "fmt"
+  "sort"
   . "math"
   . "../terminal"
   . "../geom"
 )
 
 type Color uint32
+type Triangle [3][2]int;
+type TriangleFloat [3][2]float64;
+
+func (t *Triangle) ToFloat() TriangleFloat {
+  return TriangleFloat {
+    [2]float64 {
+      float64(t[0][0]),
+      float64(t[0][1]),
+    },
+    [2]float64 {
+      float64(t[1][0]),
+      float64(t[1][1]),
+    },
+    [2]float64 {
+      float64(t[2][0]),
+      float64(t[2][1]),
+    },
+  }
+}
 
 func (c *Color) ToRgb() (uint8, uint8, uint8) {
   return 0, 0, 0
@@ -123,10 +143,16 @@ func (c *Canvas) DrawLine3D(start, end Point3, cell Cell) {
 }
 
 func (c *Canvas) DrawLine(start, end [2]int, cell Cell) {
-  x0 := float64(start[0])
-  y0 := float64(start[1])
-  x1 := float64(end[0])
-  y1 := float64(end[1])
+  startF := [2]float64 { float64(start[0]), float64(start[1]) }
+  endF := [2]float64 { float64(end[0]), float64(end[1]) }
+  c.DrawLineFloat(startF, endF, cell)
+}
+
+func (c *Canvas) DrawLineFloat(start, end [2]float64, cell Cell) {
+  x0 := start[0]
+  y0 := start[1]
+  x1 := end[0]
+  y1 := end[1]
 
   dx := Abs(x1 - x0)
   dy := Abs(y1 - y0)
@@ -170,6 +196,83 @@ func (c *Canvas) DrawLine(start, end [2]int, cell Cell) {
   }
 }
 
+func (c *Canvas) fillFlatBottomTriangle(tri TriangleFloat, cell Cell) {
+  slope0 := (tri[1][0] - tri[0][0]) / (tri[1][1] - tri[0][1])
+  slope1 := (tri[2][0] - tri[0][0]) / (tri[2][1] - tri[0][1])
+
+  x0 := tri[0][0]
+  x1 := tri[0][0]
+
+  for y := tri[0][1]; y <= tri[1][1]; y++ {
+    c.DrawLine([2]int { int(x0), int(y) }, [2]int { int(x1) , int(y) }, cell)
+    x0 += slope0
+    x1 += slope1
+  }
+}
+
+func (c *Canvas) fillFlatTopTriangle(tri TriangleFloat, cell Cell) {
+  slope0 := (tri[2][0] - tri[0][0]) / (tri[2][1] - tri[0][1])
+  slope1 := (tri[2][0] - tri[1][0]) / (tri[2][1] - tri[1][1])
+
+  x0 := tri[2][0]
+  x1 := tri[2][0]
+
+  for y := tri[2][1]; y > tri[0][1]; y-- {
+    c.DrawLine([2]int { int(x0), int(y) }, [2]int { int(x1) , int(y) }, cell)
+    x0 -= slope0
+    x1 -= slope1
+  }
+}
+
+func (c *Canvas) DrawVectorTriangle(tri TriangleFloat, cell Cell) {
+  // Center and scale coordinates
+  hw := float64(c.Width) / 2
+  hh := float64(c.Height) / 2
+  c.DrawTriangle(
+    Triangle {
+      [2]int{
+        int(tri[0][0] * hw + hw),
+        int(tri[0][1] * hh + hh),
+      },
+      [2]int{
+        int(tri[1][0] * hw + hw),
+        int(tri[1][1] * hh + hh),
+      },
+      [2]int{
+        int(tri[2][0] * hw + hw),
+        int(tri[2][1] * hh + hh),
+      },
+    },
+
+    cell,
+  )
+}
+
+func (c *Canvas) DrawTriangle(tri Triangle, cell Cell) {
+  // Sort by Y axis
+  sort.Slice(tri[:], func(i, j int) bool {
+    return tri[i][1] < tri[j][1]
+  })
+
+  floatTri := tri.ToFloat();
+
+  if floatTri[1][1] == floatTri[2][1] {
+    c.fillFlatBottomTriangle(floatTri, cell)
+
+  } else if floatTri[0][1] == floatTri[1][1] {
+    c.fillFlatTopTriangle(floatTri, cell)
+
+  } else {
+    midVert := [2]float64 {
+      floatTri[0][0] + (floatTri[1][1] - floatTri[0][1]) / (floatTri[2][1] - floatTri[0][1]) * (floatTri[2][0] - floatTri[0][0]),
+      floatTri[1][1],
+    }
+
+    c.fillFlatTopTriangle(TriangleFloat { floatTri[1], midVert, floatTri[2] }, cell)
+    c.fillFlatBottomTriangle(TriangleFloat { floatTri[0], floatTri[1], midVert }, cell)
+  }
+}
+
 func (c *Canvas) Present(term *Terminal) {
   width, height := c.Width, c.Height
   if term.Width() < width {
@@ -199,11 +302,13 @@ func (c *Canvas) Present(term *Terminal) {
       if cursorFg != backCell.Fg || cursorBg != backCell.Bg {
         cursorFg = backCell.Fg
         cursorBg = backCell.Bg
+        // Write pixel colour
         term.Write(backCell.AnsiColor())
       }
 
-      if backCell.Sprite != frontCell.Sprite {
-        frontCell.Sprite = backCell.Sprite
+      if frontCell.Fg != backCell.Fg || frontCell.Bg != backCell.Bg || backCell.Sprite != frontCell.Sprite {
+        *frontCell = *backCell
+        // Write pixel ascii
         term.WriteRune(frontCell.Sprite)
         cursorX = x + 1
       }

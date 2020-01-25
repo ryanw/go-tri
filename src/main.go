@@ -55,14 +55,21 @@ func main() {
     }
   }()
 
-  cube := NewMeshCube()
+  cube := NewLineMeshCube()
   cube.Transform = Transform {
-    Translation: Vector3 { 3, 0, -7 },
+    Translation: Vector3 { 2, 0, -7 },
     Rotation: Vector3 { 0, 0, 0 },
     Scaling: Vector3 { 1, 1, 1 },
   }
 
-  sphere := NewMeshSphere()
+  triCube := NewTriangleMeshCube()
+  triCube.Transform = Transform {
+    Translation: Vector3 { -2, 0, -7 },
+    Rotation: Vector3 { 0, 0, 0 },
+    Scaling: Vector3 { 1, 1, 1 },
+  }
+
+  sphere := NewLineMeshSphere()
   sphere.Transform = Transform {
     Translation: Vector3 { -0.5, 0, -4 },
     Rotation: Vector3 { 0, 0, 0 },
@@ -82,6 +89,9 @@ func main() {
     cube.Transform.Rotation[0] += 0.25 * m.Pi * dt
     cube.Transform.Rotation[1] += 0.5 * m.Pi * dt
     cube.Transform.Translation[2] = -8 - m.Sin(t * 0.8) * 2
+    triCube.Transform.Rotation[0] += 0.25 * m.Pi * dt
+    triCube.Transform.Rotation[1] += 0.5 * m.Pi * dt
+    triCube.Transform.Translation[2] = -8 - m.Sin(t * 0.8) * 2
 
     sphere.Transform.Rotation[0] += 0.25 * m.Pi * dt
     sphere.Transform.Rotation[1] += 0.5 * m.Pi * dt
@@ -89,7 +99,7 @@ func main() {
 
     canvas.Clear()
     renderer.RenderLineMesh(&canvas, &cube)
-    renderer.RenderLineMesh(&canvas, &sphere)
+    renderer.RenderTriangleMesh(&canvas, &triCube)
     canvas.Present(&term)
 
     time.Sleep((1000 / framerate) * time.Millisecond)

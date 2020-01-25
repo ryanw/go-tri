@@ -4,18 +4,25 @@ import (
   "math"
   . "../geom"
   . "../terminal"
-  . "../canvas"
 )
 
-type Line [2]int64
+type Line [2]int
 
-type Mesh struct {
+type LineMesh struct {
   Transform Transform
   Vertices []Point3
   Lines []Line
 }
 
-func (self *Mesh) Draw(term *Terminal, camera Camera, char rune) {
+type TriangleMesh struct {
+  Transform Transform
+  Vertices []Point3
+  Triangles [][3]int
+  Normals []Vector3
+  Colors []uint32
+}
+
+func (self *LineMesh) Draw(term *Terminal, camera Camera, char rune) {
   mvp := camera.Projection
   mvp = mvp.Multiply(camera.Transform.Matrix())
   mvp = mvp.Multiply(self.Transform.Matrix())
@@ -28,11 +35,69 @@ func (self *Mesh) Draw(term *Terminal, camera Camera, char rune) {
   }
 }
 
-func (self *Mesh) DrawInto(*Canvas, *Camera) {
+func NewTriangleMeshCube() TriangleMesh {
+  return TriangleMesh {
+    Transform: NewTransform(),
+    Vertices: []Point3{
+      Point3 {-1, -1,  1},
+      Point3 { 1, -1,  1},
+      Point3 { 1,  1,  1},
+      Point3 {-1,  1,  1},
+
+      Point3 {-1, -1, -1},
+      Point3 { 1, -1, -1},
+      Point3 { 1,  1, -1},
+      Point3 {-1,  1, -1},
+    },
+    Triangles: [][3]int{
+      // Front
+      [3]int { 0, 1, 2 },
+      [3]int { 2, 0, 3 },
+
+      // Back
+      [3]int { 4, 5, 6 },
+      [3]int { 6, 4, 7 },
+
+      // Left
+      [3]int { 0, 3, 7 },
+      [3]int { 0, 7, 4 },
+
+      // Right
+      [3]int { 1, 2, 6 },
+      [3]int { 1, 6, 5 },
+    },
+    Normals: []Vector3 {
+      Vector3 {  0, 0,  1 },
+      Vector3 {  0, 0,  1 },
+
+      Vector3 {  0, 0, -1 },
+      Vector3 {  0, 0, -1 },
+
+      Vector3 { -1, 0,  0 },
+      Vector3 { -1, 0,  0 },
+
+      Vector3 {  1, 0,  0 },
+      Vector3 {  1, 0,  0 },
+    },
+    Colors: []uint32 {
+      0xffff0000,
+      0xffff0000,
+
+      0xff00ff00,
+      0xff00ff00,
+
+      0xff0000ff,
+      0xff0000ff,
+
+      0xffffff00,
+      0xffffff00,
+    },
+  }
+
 }
 
-func NewMeshCube() Mesh {
-  return Mesh {
+func NewLineMeshCube() LineMesh {
+  return LineMesh {
     Transform: NewTransform(),
     Vertices: []Point3{
       Point3 {-1, -1, -1},
@@ -74,11 +139,11 @@ func NewMeshCube() Mesh {
 
 }
 
-func NewMeshSphere() Mesh {
+func NewLineMeshSphere() LineMesh {
   xSegments := 8.0
   ySegments := 6.0
 
-  mesh := Mesh {
+  mesh := LineMesh {
     Transform: NewTransform(),
     Vertices: []Point3{
     },
@@ -98,12 +163,12 @@ func NewMeshSphere() Mesh {
       if len(mesh.Vertices) > 1 {
         // Horizontal line
         if x > xSegments * -0.5 {
-          mesh.Lines = append(mesh.Lines, Line { int64(len(mesh.Vertices) - 2), int64(len(mesh.Vertices) - 1) })
+          mesh.Lines = append(mesh.Lines, Line { int(len(mesh.Vertices) - 2), int(len(mesh.Vertices) - 1) })
         }
 
         // Vertical line
         if y > ySegments * -0.5 {
-          mesh.Lines = append(mesh.Lines, Line { int64(len(mesh.Vertices)) - int64(xSegments) - 2, int64(len(mesh.Vertices) - 1) })
+          mesh.Lines = append(mesh.Lines, Line { int(len(mesh.Vertices)) - int(xSegments) - 2, int(len(mesh.Vertices) - 1) })
         }
       }
     }
