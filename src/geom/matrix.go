@@ -2,13 +2,6 @@ package geom
 
 import "math"
 
-type Vector3 [3]float64
-type Point3 [3]float64
-type Vector4 [4]float64
-type Point4 [4]float64
-type Matrix4 [16]float64
-type Line3 [2]Point3
-
 func NewMatrix4Identity() Matrix4 {
   return Matrix4 {
     1, 0, 0, 0,
@@ -87,56 +80,56 @@ func NewMatrix4Scaling(x, y, z float64) Matrix4 {
   }
 }
 
-func (self Matrix4) Row(axis int64) Vector4 {
+func (m Matrix4) Row(axis int64) Vector4 {
   o := 4 * axis
   return Vector4 {
-    self[o + 0],
-    self[o + 1],
-    self[o + 2],
-    self[o + 3],
+    m[o + 0],
+    m[o + 1],
+    m[o + 2],
+    m[o + 3],
   }
 }
 
-func (self Matrix4) Rows() [4]Vector4 {
+func (m Matrix4) Rows() [4]Vector4 {
   return [4]Vector4 {
-    self.Row(0),
-    self.Row(1),
-    self.Row(2),
-    self.Row(3),
+    m.Row(0),
+    m.Row(1),
+    m.Row(2),
+    m.Row(3),
   }
 }
 
-func (self Matrix4) Column(axis int64) Vector4 {
+func (m Matrix4) Column(axis int64) Vector4 {
   return Vector4 {
-    self[axis + 0],
-    self[axis + 4],
-    self[axis + 8],
-    self[axis + 12],
+    m[axis + 0],
+    m[axis + 4],
+    m[axis + 8],
+    m[axis + 12],
   }
 }
 
-func (self Matrix4) Columns() [4]Vector4 {
+func (m Matrix4) Columns() [4]Vector4 {
   return [4]Vector4 {
-    self.Column(0),
-    self.Column(1),
-    self.Column(2),
-    self.Column(3),
+    m.Column(0),
+    m.Column(1),
+    m.Column(2),
+    m.Column(3),
   }
 }
 
-func (self Matrix4) Multiply(other Matrix4) Matrix4 {
+func (m Matrix4) Multiply(other Matrix4) Matrix4 {
   otherCols := other.Columns()
   cols := [4]Vector4 {
-    self.MultiplyVector4(otherCols[0]),
-    self.MultiplyVector4(otherCols[1]),
-    self.MultiplyVector4(otherCols[2]),
-    self.MultiplyVector4(otherCols[3]),
+    m.MultiplyVector4(otherCols[0]),
+    m.MultiplyVector4(otherCols[1]),
+    m.MultiplyVector4(otherCols[2]),
+    m.MultiplyVector4(otherCols[3]),
   }
   return NewMatrix4FromColumns(cols);
 }
 
-func (self Matrix4) MultiplyVector4(vec Vector4) Vector4 {
-  cols := self.Columns()
+func (m Matrix4) MultiplyVector4(vec Vector4) Vector4 {
+  cols := m.Columns()
 
   x := cols[0].Scale(vec[0])
   y := cols[1].Scale(vec[1])
@@ -151,8 +144,8 @@ func (self Matrix4) MultiplyVector4(vec Vector4) Vector4 {
   }
 }
 
-func (self Matrix4) TransformPoint3(point Point3) Point3 {
-  vec := self.MultiplyVector4(Vector4 { point[0], point[1], point[2], 1 })
+func (m Matrix4) TransformPoint3(point Point3) Point3 {
+  vec := m.MultiplyVector4(Vector4 { point[0], point[1], point[2], 1 })
 
   return Point3 {
     vec[0] / vec[3],
@@ -161,11 +154,19 @@ func (self Matrix4) TransformPoint3(point Point3) Point3 {
   }
 }
 
-func (self Vector4) Scale(scale float64) Vector4 {
+func (m Matrix4) TransformTriangle3(tri Triangle3) Triangle3 {
+  return Triangle3 {
+    m.TransformPoint3(tri[0]),
+    m.TransformPoint3(tri[1]),
+    m.TransformPoint3(tri[2]),
+  }
+}
+
+func (m Vector4) Scale(scale float64) Vector4 {
   return Vector4 {
-    self[0] * scale,
-    self[1] * scale,
-    self[2] * scale,
-    self[3] * scale,
+    m[0] * scale,
+    m[1] * scale,
+    m[2] * scale,
+    m[3] * scale,
   }
 }

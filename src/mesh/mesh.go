@@ -65,6 +65,14 @@ func NewTriangleMeshCube() TriangleMesh {
       // Right
       [3]int { 1, 2, 6 },
       [3]int { 1, 6, 5 },
+
+      // Top
+      [3]int { 0, 1, 5 },
+      [3]int { 5, 0, 4 },
+
+      // Bottom
+      [3]int { 3, 2, 6 },
+      [3]int { 6, 3, 7 },
     },
     Normals: []Vector3 {
       Vector3 {  0, 0,  1 },
@@ -78,6 +86,12 @@ func NewTriangleMeshCube() TriangleMesh {
 
       Vector3 {  1, 0,  0 },
       Vector3 {  1, 0,  0 },
+
+      Vector3 {  0, -1, 0 },
+      Vector3 {  0, -1, 0 },
+
+      Vector3 {  0,  1, 0 },
+      Vector3 {  0,  1, 0 },
     },
     Colors: []uint32 {
       0xffff0000,
@@ -91,6 +105,12 @@ func NewTriangleMeshCube() TriangleMesh {
 
       0xffffff00,
       0xffffff00,
+
+      0xffff00ff,
+      0xffff00ff,
+
+      0xff00ffff,
+      0xff00ffff,
     },
   }
 

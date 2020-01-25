@@ -47,6 +47,7 @@ func (c Color) ToAnsi() uint16 {
 type Cell struct {
   Fg Color
   Bg Color
+  Depth float64
   Sprite rune
 }
 
@@ -80,6 +81,13 @@ func (c *Canvas) Set(x, y int, cell Cell) {
   }
   idx := c.positionToIndex(x, y)
   c.back[idx] = cell
+}
+
+func (c *Canvas) DepthAt(x, y int) float64 {
+  if c.IsOutOfBounds(x, y) {
+    return 0.0
+  }
+  return c.GetBack(x, y).Depth
 }
 
 func (c *Canvas) Get(x, y int) *Cell {
@@ -117,6 +125,7 @@ func (c *Canvas) Clear() {
   c.ClearWithCell(Cell {
     Fg: 0xffffffff, // White
     Bg: 0x00000000, // Transparent
+    Depth: 1000000,
     Sprite: ' ',
   })
 }
@@ -140,6 +149,64 @@ func (c *Canvas) DrawLine3D(start, end Point3, cell Cell) {
     int(end[1] * hh + hh),
   }
   c.DrawLine(startPos, endPos, cell)
+}
+
+// FIXME coords aren't consistent with naming
+// Line coords are cell positions
+func (c *Canvas) DrawDeepLine(line Line3, cell Cell) {
+  start, end := line[0], line[1]
+
+  x0, y0, z0 := Floor(start[0]), Floor(start[1]), start[2]
+  x1, y1, z1 := Floor(end[0]), Floor(end[1]), end[2]
+
+  dx := Abs(x1 - x0)
+  dy := Abs(y1 - y0)
+  dz := 0.0
+
+  var sx, sy, err float64
+  if x0 < x1 {
+    sx = 1
+  } else {
+    sx = -1
+  }
+  if y0 < y1 {
+    sy = 1
+  } else {
+    sy = -1
+  }
+
+  if dx > dy {
+    dz = (z0 - z1) / dx
+    err =  dx / 2.0
+  } else {
+    dz = (z0 - z1) / dy
+    err = -dy / 2.0
+  }
+
+
+  for {
+    depth := z0 * 1000
+    if c.DepthAt(int(x0), int(y0)) > depth {
+      cell.Depth = depth
+      c.Set(int(x0), int(y0), cell)
+    }
+
+    if int(x0) == int(x1) && int(y0) == int(y1) {
+      // The end
+      break
+    }
+
+    e2 := err
+    if e2 > -dx {
+      err -= dy
+      x0 += sx
+    }
+    if e2 < dy {
+      err += dx
+      y0 += sy
+    }
+    z0 -= dz
+  }
 }
 
 func (c *Canvas) DrawLine(start, end [2]int, cell Cell) {
@@ -224,6 +291,121 @@ func (c *Canvas) fillFlatTopTriangle(tri TriangleFloat, cell Cell) {
   }
 }
 
+
+
+// Triangle coords are -1.0 to +1.0
+// Vertex order: [top, br, bl]
+func (c *Canvas) fillFlatBottomTriangle3(tri Triangle3, cell Cell) {
+  p0 := c.Point3ToPoint2(tri[0]).Floor()
+  p1 := c.Point3ToPoint2(tri[1]).Floor()
+  p2 := c.Point3ToPoint2(tri[2]).Floor()
+
+  dy := p1.Y() - p0.Y()
+  slope0 := (p1.X() - p0.X()) / dy
+  slope1 := (p2.X() - p0.X()) / dy
+  zSlope0 := (tri[1].Z() - tri[0].Z()) / dy
+  zSlope1 := (tri[2].Z() - tri[0].Z()) / dy
+
+  x0 := p0.X()
+  x1 := p0.X()
+  z0 := tri[0].Z()
+  z1 := tri[0].Z()
+
+  for y := p0.Y(); y <= p1.Y(); y++ {
+    line := Line3 { Point3 { x0, y, z0 }, Point3 { x1, y, z1 } }
+    c.DrawDeepLine(line, cell)
+    x0 += slope0
+    x1 += slope1
+    z0 += zSlope0
+    z1 += zSlope1
+  }
+}
+
+// Vertex order: [top, br, bl]
+func (c *Canvas) fillFlatTopTriangle3(tri Triangle3, cell Cell) {
+  p0 := c.Point3ToPoint2(tri[0]).Floor()
+  p1 := c.Point3ToPoint2(tri[1]).Floor()
+  p2 := c.Point3ToPoint2(tri[2]).Floor()
+
+  dy := p2.Y() - p0.Y()
+  slope0 := (p2.X() - p0.X()) / dy
+  slope1 := (p2.X() - p1.X()) / dy
+  zSlope0 := (tri[0].Z() - tri[2].Z()) / dy
+  zSlope1 := (tri[1].Z() - tri[2].Z()) / dy
+
+
+  x0 := float64(p2.X())
+  x1 := float64(p2.X())
+  z0 := tri[2].Z()
+  z1 := tri[2].Z()
+
+  for y := p2.Y(); y >= p0.Y(); y-- {
+    line := Line3 { Point3 {x0, y, z0 }, Point3 { x1, y, z1 } }
+    c.DrawDeepLine(line, cell)
+    x0 -= slope0
+    x1 -= slope1
+    z0 += zSlope0
+    z1 += zSlope1
+  }
+}
+
+
+func (c *Canvas) DrawTriangle3(tri Triangle3, cell Cell) {
+  // Sort by Y axis
+  sort.SliceStable(tri[:], func(i, j int) bool {
+    return tri[i].Y() < tri[j].Y()
+  })
+
+
+  if tri[1].Y() == tri[2].Y() {
+    c.fillFlatBottomTriangle3(tri, cell)
+
+  } else if tri[0].Y() == tri[1].Y() {
+    c.fillFlatTopTriangle3(tri, cell)
+
+  } else {
+    dy := (tri[1].Y() - tri[0].Y()) / (tri[2].Y() - tri[0].Y())
+
+    midVert := Point3 {
+      tri[0].X() + dy * (tri[2].X() - tri[0].X()),
+      tri[1].Y(),
+      tri[0].Z() + dy * (tri[2].Z() - tri[0].Z()),
+    }
+
+    c.fillFlatBottomTriangle3(Triangle3 { tri[0], midVert, tri[1] }, cell)
+    c.fillFlatTopTriangle3(Triangle3 { tri[1], midVert, tri[2] }, cell)
+  }
+}
+
+func (c *Canvas) Point3ToPoint2(point Point3) Point2 {
+  hw := float64(c.Width) / 2
+  hh := float64(c.Height) / 2
+
+  x := point.X() * hw + hw
+  y := point.Y() * hh + hh
+
+  return Point2{ x, y }
+}
+
+func (c *Canvas) Point2ToCoord(point Point2) [2]int {
+  hw := float64(c.Width) / 2
+  hh := float64(c.Height) / 2
+
+  x := int(point.X() * hw + hw)
+  y := int(point.Y() * hh + hh)
+
+  return [2]int{x, y}
+}
+
+func (c *Canvas) Point3ToCoord(point Point3) [2]int {
+  hw := float64(c.Width) / 2
+  hh := float64(c.Height) / 2
+
+  x := int(point.X() * hw + hw)
+  y := int(point.Y() * hh + hh)
+
+  return [2]int{x, y}
+}
 func (c *Canvas) DrawVectorTriangle(tri TriangleFloat, cell Cell) {
   // Center and scale coordinates
   hw := float64(c.Width) / 2

@@ -13,7 +13,7 @@ import (
   . "./renderer"
 )
 
-const framerate = 20
+const framerate = 30
 
 func main() {
   term := NewTerminal()
@@ -25,7 +25,7 @@ func main() {
       Transform: Transform {
         Translation: Vector3 { 0, 0, 0 },
         Rotation: Vector3 { 0, 0, 0 },
-        Scaling: Vector3 { 2, 1, 1 },
+        Scaling: Vector3 { 1, 1, 1 },
       },
     },
   }

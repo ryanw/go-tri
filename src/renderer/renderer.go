@@ -36,19 +36,15 @@ func (r *Renderer) RenderTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
   mvp = mvp.Multiply(mesh.Transform.Matrix())
 
   for i, tri := range mesh.Triangles {
-    p0 := mvp.TransformPoint3(mesh.Vertices[tri[0]])
-    p1 := mvp.TransformPoint3(mesh.Vertices[tri[1]])
-    p2 := mvp.TransformPoint3(mesh.Vertices[tri[2]])
-
-    triangle := TriangleFloat {
-      [2]float64{ p0[0], p0[1] },
-      [2]float64{ p1[0], p1[1] },
-      [2]float64{ p2[0], p2[1] },
-    }
+    triangle := mvp.TransformTriangle3(Triangle3 {
+      mesh.Vertices[tri[0]],
+      mesh.Vertices[tri[1]],
+      mesh.Vertices[tri[2]],
+    })
 
     color := Color(mesh.Colors[i])
 
-    canvas.DrawVectorTriangle(triangle, Cell {
+    canvas.DrawTriangle3(triangle, Cell {
       Fg: color,
       Bg: color,
       Sprite: '.',
