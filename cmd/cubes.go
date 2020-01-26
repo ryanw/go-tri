@@ -41,6 +41,7 @@ func main() {
 				term.MainScreen()
 				term.ShowCursor()
 				term.NormalMode()
+				term.DisableMouseMove()
 				term.Flush()
 				os.Exit(0)
 
@@ -78,6 +79,7 @@ func main() {
 	term.AltScreen()
 	term.HideCursor()
 	term.RawMode()
+	term.EnableMouseMove()
 	term.Clear()
 
 	// Main loop

@@ -113,3 +113,23 @@ func (t *Terminal) EnableEcho() {
 func (t *Terminal) DisableEcho() {
 	t.UnsetLFlag(syscall.ECHO)
 }
+
+// Enables mouse position tracking
+func (t *Terminal) EnableMouseMove() {
+	t.CSI("?1003h")
+}
+
+// Disables mouse position tracking
+func (t *Terminal) DisableMouseMove() {
+	t.CSI("?1003l")
+}
+
+// Enables mouse button tracking
+func (t *Terminal) EnableMouse() {
+	t.CSI("?1002h")
+}
+
+// Disable mouse button tracking
+func (t *Terminal) DisableMouse() {
+	t.CSI("?1002l")
+}
