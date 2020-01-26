@@ -58,10 +58,8 @@ func (r *Renderer) RenderTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
 		color := Vector3FromColor(mesh.Colors[i])
 		color = color.Scale(light)
 
-		// Calculate diffuse lighting
-
 		canvas.DrawTriangle3(triangle, Cell{
-			Fg:     0x00,
+			Fg:     color.Scale(0.7).ToColor(),
 			Bg:     color.ToColor(),
 			Sprite: ' ',
 		})

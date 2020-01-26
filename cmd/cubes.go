@@ -13,7 +13,7 @@ import (
 	. "tri/terminal"
 )
 
-const framerate = 30
+const framerate = 20
 
 func main() {
 	term := NewTerminal()
@@ -67,11 +67,11 @@ func main() {
 		Scaling:     Vector3{1, 1, 1},
 	}
 
-	sphere := NewLineMeshSphere()
-	sphere.Transform = Transform{
-		Translation: Vector3{-0.5, 0, -4},
+	plane := NewTriangleMeshPlane(4, 4)
+	plane.Transform = Transform{
+		Translation: Vector3{0, 2, -10},
 		Rotation:    Vector3{0, 0, 0},
-		Scaling:     Vector3{1, 1, 1},
+		Scaling:     Vector3{3, 1, 3},
 	}
 
 	term.AltScreen()
@@ -83,20 +83,20 @@ func main() {
 	for {
 		dt := 1.0 / float64(framerate)
 
-		cube.Transform.Rotation[0] += 0.15 * m.Pi * dt
-		cube.Transform.Rotation[1] += 0.5 * m.Pi * dt
-		cube.Transform.Translation[2] = -8 - m.Sin(t*0.8)*2
-		triCube.Transform.Rotation[0] += 0.15 * m.Pi * dt
-		triCube.Transform.Rotation[1] += 0.5 * m.Pi * dt
-		triCube.Transform.Translation[2] = -8 - m.Sin(t*0.8)*2
+		f := 0.5 * m.Pi
 
-		sphere.Transform.Rotation[0] += 0.25 * m.Pi * dt
-		sphere.Transform.Rotation[1] += 0.5 * m.Pi * dt
-		sphere.Transform.Translation[2] = -4 - m.Sin(t*1.2)*2
+		cube.Transform.Rotation[0] += f * dt
+		cube.Transform.Rotation[1] += f * dt
+		cube.Transform.Translation[2] = -8 - m.Sin(t*0.8)*2
+		triCube.Transform.Rotation[0] += f * dt
+		triCube.Transform.Rotation[1] += f * dt
+		triCube.Transform.Translation[2] = -8 - m.Sin(t*0.8)*2
+		plane.Transform.Rotation[1] -= f * dt
 
 		canvas.Clear()
 		renderer.RenderLineMesh(&canvas, &cube)
 		renderer.RenderTriangleMesh(&canvas, &triCube)
+		renderer.RenderTriangleMesh(&canvas, &plane)
 		canvas.Present(&term)
 
 		time.Sleep((1000 / framerate) * time.Millisecond)

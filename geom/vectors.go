@@ -8,39 +8,39 @@ type Vector2 [2]float64
 type Vector3 [3]float64
 type Vector4 [4]float64
 
-func (v *Vector2) X() float64 {
+func (v Vector2) X() float64 {
 	return v[0]
 }
 
-func (v *Vector2) Y() float64 {
+func (v Vector2) Y() float64 {
 	return v[1]
 }
 
-func (v *Vector3) X() float64 {
+func (v Vector3) X() float64 {
 	return v[0]
 }
 
-func (v *Vector3) Y() float64 {
+func (v Vector3) Y() float64 {
 	return v[1]
 }
 
-func (v *Vector3) Z() float64 {
+func (v Vector3) Z() float64 {
 	return v[2]
 }
 
-func (v *Vector4) X() float64 {
+func (v Vector4) X() float64 {
 	return v[0]
 }
 
-func (v *Vector4) Y() float64 {
+func (v Vector4) Y() float64 {
 	return v[1]
 }
 
-func (v *Vector4) Z() float64 {
+func (v Vector4) Z() float64 {
 	return v[2]
 }
 
-func (v *Vector4) W() float64 {
+func (v Vector4) W() float64 {
 	return v[2]
 }
 
@@ -53,7 +53,7 @@ func (v Vector3) Normalize() Vector3 {
 	}
 }
 
-func (v *Vector3) Scale(scale float64) Vector3 {
+func (v Vector3) Scale(scale float64) Vector3 {
 	return Vector3{
 		v.X() * scale,
 		v.Y() * scale,
@@ -79,7 +79,7 @@ func (p *Point3) Vector3FromPoint3() Vector3 {
 	return Vector3{p[0], p[1], p[2]}
 }
 
-func (v *Vector3) ToColor() Color {
+func (v Vector3) ToColor() Color {
 	r := uint32(v.X()*0xff) << 16
 	g := uint32(v.Y()*0xff) << 8
 	b := uint32(v.Z()*0xff) << 0
