@@ -40,6 +40,7 @@ func main() {
 			case os.Interrupt:
 				term.MainScreen()
 				term.ShowCursor()
+				term.NormalMode()
 				term.Flush()
 				os.Exit(0)
 
@@ -76,6 +77,7 @@ func main() {
 
 	term.AltScreen()
 	term.HideCursor()
+	term.RawMode()
 	term.Clear()
 
 	// Main loop
