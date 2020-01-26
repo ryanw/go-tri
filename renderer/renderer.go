@@ -32,7 +32,6 @@ func (r *Renderer) RenderLineMesh(canvas *Canvas, mesh *LineMesh) {
 func (r *Renderer) RenderTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
 	camera := &r.Camera
 	lightDir := Vector3{0.4, -0.7, -0.3}.Normalize()
-	_ = lightDir
 
 	mvp := camera.Projection
 	mvp = mvp.Multiply(camera.Transform.Matrix())

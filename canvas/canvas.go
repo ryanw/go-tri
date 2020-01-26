@@ -179,7 +179,7 @@ func (c *Canvas) DrawDeepLine(line Line3, cell Cell) {
 	}
 
 	for {
-		depth := z0 * 1000
+		depth := z0
 		if c.DepthAt(int(x0), int(y0)) > depth {
 			cell.Depth = depth
 			c.Set(int(x0), int(y0), cell)
@@ -284,9 +284,21 @@ func (c *Canvas) fillFlatTopTriangle(tri TriangleFloat, cell Cell) {
 	}
 }
 
+func isTriangleOnScreen(tri Triangle3) bool {
+	return tri.IntersectsBox2(Box2{Point2{-1, -1}, Point2{1, 1}})
+}
+func isTriangleOffScreen(tri Triangle3) bool {
+	return !isTriangleOnScreen(tri)
+}
+
 // Triangle coords are -1.0 to +1.0
 // Vertex order: [top, br, bl]
 func (c *Canvas) fillFlatBottomTriangle3(tri Triangle3, cell Cell) {
+	if isTriangleOffScreen(tri) {
+		return
+	}
+
+	// Translate to pixel coords
 	p0 := c.Point3ToPoint2(tri[0]).Floor()
 	p1 := c.Point3ToPoint2(tri[1]).Floor()
 	p2 := c.Point3ToPoint2(tri[2]).Floor()
@@ -312,8 +324,12 @@ func (c *Canvas) fillFlatBottomTriangle3(tri Triangle3, cell Cell) {
 	}
 }
 
-// Vertex order: [top, br, bl]
+// Vertex order: [tl, tr, b]
 func (c *Canvas) fillFlatTopTriangle3(tri Triangle3, cell Cell) {
+	if isTriangleOffScreen(tri) {
+		return
+	}
+
 	p0 := c.Point3ToPoint2(tri[0]).Floor()
 	p1 := c.Point3ToPoint2(tri[1]).Floor()
 	p2 := c.Point3ToPoint2(tri[2]).Floor()
