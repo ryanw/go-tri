@@ -33,7 +33,6 @@ func NewMatrix4Perspective(aspect, fov, near, far float64) Matrix4 {
 }
 
 func NewMatrix4Rotation(x, y, z float64) Matrix4 {
-
 	cosx, sinx := math.Cos(x), math.Sin(x)
 	cosy, siny := math.Cos(y), math.Sin(y)
 	cosz, sinz := math.Cos(z), math.Sin(z)
