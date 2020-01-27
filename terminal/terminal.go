@@ -17,14 +17,16 @@ type WinSize struct {
 
 type Terminal struct {
 	width, height int
-	buffer        bufio.Writer
+	stdout        bufio.Writer
+	stdin         bufio.Reader
 }
 
 func NewTerminal() Terminal {
 	term := Terminal{
 		width:  16,
 		height: 16,
-		buffer: *bufio.NewWriterSize(os.Stdout, 4096),
+		stdout: *bufio.NewWriterSize(os.Stdout, 4096),
+		stdin:  *bufio.NewReaderSize(os.Stdin, 64),
 	}
 	term.UpdateSize()
 	return term
@@ -62,13 +64,13 @@ func (t *Terminal) Draw(callback func()) {
 }
 
 func (t *Terminal) Flush() {
-	t.buffer.Flush()
+	t.stdout.Flush()
 }
 
 func (t *Terminal) Write(format string, a ...interface{}) {
-	fmt.Fprintf(&t.buffer, format, a...)
+	fmt.Fprintf(&t.stdout, format, a...)
 }
 
 func (t *Terminal) WriteRune(char rune) {
-	fmt.Fprint(&t.buffer, string(char))
+	fmt.Fprint(&t.stdout, string(char))
 }

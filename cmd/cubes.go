@@ -13,7 +13,7 @@ import (
 	. "tri/terminal"
 )
 
-const framerate = 20
+const framerate = 30
 
 func main() {
 	term := NewTerminal()
@@ -41,7 +41,7 @@ func main() {
 				term.MainScreen()
 				term.ShowCursor()
 				term.NormalMode()
-				term.DisableMouseMove()
+				term.DisableMouse()
 				term.Flush()
 				os.Exit(0)
 
@@ -79,8 +79,31 @@ func main() {
 	term.AltScreen()
 	term.HideCursor()
 	term.RawMode()
-	term.EnableMouseMove()
+	term.EnableMouse()
 	term.Clear()
+
+	// User input events
+	go func() {
+		for {
+			event := term.NextEvent()
+			switch event.EventType {
+			case KeyEvent:
+
+			case MouseEvent:
+				switch event.MouseAction {
+				case MouseMove:
+					x := float64(event.MouseX)
+					y := float64(event.MouseY)
+					vx := x / float64(width)
+					vy := y / float64(height)
+					triCube.Transform.Rotation[0] = m.Pi * vy * 2
+					triCube.Transform.Rotation[1] = m.Pi * -vx * 2
+
+				case MouseDown:
+				}
+			}
+		}
+	}()
 
 	// Main loop
 	t := 1.0
@@ -92,8 +115,8 @@ func main() {
 		cube.Transform.Rotation[0] += f * dt
 		cube.Transform.Rotation[1] += f * dt
 		cube.Transform.Translation[2] = -8 - m.Sin(t*0.8)*2
-		triCube.Transform.Rotation[0] += f * dt
-		triCube.Transform.Rotation[1] += f * dt
+		//triCube.Transform.Rotation[0] += f * dt
+		//triCube.Transform.Rotation[1] += f * dt
 		triCube.Transform.Translation[2] = -8 - m.Sin(t*0.8)*2
 		plane.Transform.Rotation[1] -= f * dt
 

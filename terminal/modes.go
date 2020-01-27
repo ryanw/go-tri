@@ -115,21 +115,19 @@ func (t *Terminal) DisableEcho() {
 }
 
 // Enables mouse position tracking
-func (t *Terminal) EnableMouseMove() {
-	t.CSI("?1003h")
+func (t *Terminal) EnableMouse() {
+	t.CSI("?1000h") // Enable VT200
+	t.CSI("?1002h") // Enable "button" Xterm mouse events
+	//t.CSI("?1015h") // Enable urxvt extended mouse positions (for > 223 cells)
+	t.CSI("?1006h") // Enable SGR extended mouse positions (for > 223 cells)
+	t.CSI("?1003h") // Enable "any" Xterm mouse events (i.e. mouse move without buttons)
 }
 
 // Disables mouse position tracking
-func (t *Terminal) DisableMouseMove() {
-	t.CSI("?1003l")
-}
-
-// Enables mouse button tracking
-func (t *Terminal) EnableMouse() {
-	t.CSI("?1002h")
-}
-
-// Disable mouse button tracking
 func (t *Terminal) DisableMouse() {
-	t.CSI("?1002l")
+	t.CSI("?1003l") // Disable "any" Xterm mouse events
+	t.CSI("?1006l") // Disable SGR extended mouse positions
+	//t.CSI("?1015h") // Disable urxvt extended mouse positions
+	t.CSI("?1002l") // Disable "button" Xterm mouse events
+	t.CSI("?1000l") // Disable VT200
 }

@@ -481,7 +481,7 @@ func (c *Canvas) Present(term *Terminal) {
 			backCell := c.GetBack(x, y)
 			frontCell := c.GetFront(x, y)
 
-			if backCell == frontCell {
+			if backCell == nil || frontCell == nil || backCell == frontCell {
 				continue
 			}
 
