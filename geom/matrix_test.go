@@ -17,6 +17,70 @@ func TestNewMatrix4Identity(t *testing.T) {
 	assertMatrix4Equal(t, mat, expected)
 }
 
+func TestMatrix4Inverse(t *testing.T) {
+	mat := Matrix4{
+		3, 7, 2, 3,
+		3, 1, 3, 5,
+		5, 4, 2, 0,
+		8, 5, 1, 1,
+	}
+	expected := Matrix4{
+		-0.2564, 0.0769, -0.0512, 0.3846,
+		0.4102, -0.2371, -0.0320, -0.0448,
+		-0.1794, 0.2820, 1.3333, -0.8717,
+		0.1794, 0.2884, -0.7628, 0.3012,
+	}
+
+	result, err := mat.Inverse()
+
+	if err != nil {
+		t.Errorf("Matrix failed to invert - %v", err)
+	}
+
+	assertMatrix4Equal(t, result, expected)
+
+	// Inverse again should return the original
+	result, err = result.Inverse()
+
+	if err != nil {
+		t.Errorf("Matrix failed to invert - %v", err)
+	}
+
+	assertMatrix4Equal(t, result, mat)
+}
+
+func TestMatrix4InverseTranslation(t *testing.T) {
+	mat := Matrix4{
+		1, 0, 0, 5,
+		0, 1, 0, 4,
+		0, 0, 1, 3,
+		0, 0, 0, 1,
+	}
+	expected := Matrix4{
+		1, 0, 0, -5,
+		0, 1, 0, -4,
+		0, 0, 1, -3,
+		0, 0, 0, 1,
+	}
+
+	result, err := mat.Inverse()
+
+	if err != nil {
+		t.Errorf("Matrix failed to invert - %v", err)
+	}
+
+	assertMatrix4Equal(t, result, expected)
+
+	// Inverse again should return the original
+	result, err = result.Inverse()
+
+	if err != nil {
+		t.Errorf("Matrix failed to invert - %v", err)
+	}
+
+	assertMatrix4Equal(t, result, mat)
+}
+
 func TestMultiply(t *testing.T) {
 	mat1 := Matrix4{
 		1, 0, 2, 0,
@@ -120,29 +184,27 @@ func TestPerspectiveTransformPoint3(t *testing.T) {
 
 // Assertions
 
-func assertMatrix4Equal(t *testing.T, actual Matrix4, expected Matrix4) {
+func assertValuesEqual(t *testing.T, actual []float64, expected []float64) {
+	if len(actual) != len(expected) {
+		t.Errorf("Lens differ: %#v != %#v", actual, expected)
+		return
+	}
 	for i, n := range actual {
 		if math.Abs(n-expected[i]) > 0.001 {
-			t.Errorf("Matrix4 value at %d is wrong  %#v != %#v", i, actual, expected)
+			t.Errorf("Value at %d is wrong  %#v != %#v", i, actual, expected)
 			break
 		}
 	}
+}
+
+func assertMatrix4Equal(t *testing.T, actual Matrix4, expected Matrix4) {
+	assertValuesEqual(t, actual[:], expected[:])
 }
 
 func assertVector4Equal(t *testing.T, actual Vector4, expected Vector4) {
-	for i, n := range actual {
-		if math.Abs(n-expected[i]) > 0.001 {
-			t.Errorf("Vector4 value at %d is wrong  %#v != %#v", i, actual, expected)
-			break
-		}
-	}
+	assertValuesEqual(t, actual[:], expected[:])
 }
 
 func assertPoint3Equal(t *testing.T, actual Point3, expected Point3) {
-	for i, n := range actual {
-		if math.Abs(n-expected[i]) > 0.001 {
-			t.Errorf("Point3 value at %d is wrong  %#v != %#v", i, actual, expected)
-			break
-		}
-	}
+	assertValuesEqual(t, actual[:], expected[:])
 }

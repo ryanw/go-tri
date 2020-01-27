@@ -2,8 +2,6 @@ package geom
 
 import "math"
 
-type Matrix4 [16]float64
-
 type Line2 [2]Point2
 type Line3 [2]Point3
 type Triangle2 [3]Point2

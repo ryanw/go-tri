@@ -15,10 +15,12 @@ func NewTransform() Transform {
 }
 
 func (t *Transform) Matrix() Matrix4 {
-	return NewMatrix4Translation(
-		t.Translation[0],
-		t.Translation[1],
-		t.Translation[2],
+	return NewMatrix4Identity().Multiply(
+		NewMatrix4Translation(
+			t.Translation[0],
+			t.Translation[1],
+			t.Translation[2],
+		),
 	).Multiply(
 		NewMatrix4Rotation(
 			t.Rotation[0],

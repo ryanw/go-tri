@@ -1,6 +1,9 @@
 package geom
 
 import "math"
+import "errors"
+
+type Matrix4 [16]float64
 
 func NewMatrix4Identity() Matrix4 {
 	return Matrix4{
@@ -79,7 +82,7 @@ func NewMatrix4Scaling(x, y, z float64) Matrix4 {
 	}
 }
 
-func (m Matrix4) Row(axis int64) Vector4 {
+func (m Matrix4) Row(axis int) Vector4 {
 	o := 4 * axis
 	return Vector4{
 		m[o+0],
@@ -98,7 +101,7 @@ func (m Matrix4) Rows() [4]Vector4 {
 	}
 }
 
-func (m Matrix4) Column(axis int64) Vector4 {
+func (m Matrix4) Column(axis int) Vector4 {
 	return Vector4{
 		m[axis+0],
 		m[axis+4],
@@ -114,6 +117,16 @@ func (m Matrix4) Columns() [4]Vector4 {
 		m.Column(2),
 		m.Column(3),
 	}
+}
+
+func (m Matrix4) Get(row, col int) float64 {
+	idx := col + row*4
+	return m[idx]
+}
+
+func (m *Matrix4) Set(row, col int, val float64) {
+	idx := col + row*4
+	m[idx] = val
 }
 
 func (m Matrix4) Multiply(other Matrix4) Matrix4 {
@@ -171,11 +184,130 @@ func (m Matrix4) TransformTriangle3(tri Triangle3) Triangle3 {
 	}
 }
 
-func (m Vector4) Scale(scale float64) Vector4 {
-	return Vector4{
-		m[0] * scale,
-		m[1] * scale,
-		m[2] * scale,
-		m[3] * scale,
+// Returns the inverse of the matrix
+func (m Matrix4) Inverse() (Matrix4, error) {
+	inv := Matrix4{}
+
+	inv[0] = m[5]*m[10]*m[15] -
+		m[5]*m[14]*m[11] -
+		m[6]*m[9]*m[15] +
+		m[6]*m[13]*m[11] +
+		m[7]*m[9]*m[14] -
+		m[7]*m[13]*m[10]
+
+	inv[1] = -m[1]*m[10]*m[15] +
+		m[1]*m[14]*m[11] +
+		m[2]*m[9]*m[15] -
+		m[2]*m[13]*m[11] -
+		m[3]*m[9]*m[14] +
+		m[3]*m[13]*m[10]
+
+	inv[2] = m[1]*m[6]*m[15] -
+		m[1]*m[14]*m[7] -
+		m[2]*m[5]*m[15] +
+		m[2]*m[13]*m[7] +
+		m[3]*m[5]*m[14] -
+		m[3]*m[13]*m[6]
+
+	inv[3] = -m[1]*m[6]*m[11] +
+		m[1]*m[10]*m[7] +
+		m[2]*m[5]*m[11] -
+		m[2]*m[9]*m[7] -
+		m[3]*m[5]*m[10] +
+		m[3]*m[9]*m[6]
+
+	inv[4] = -m[4]*m[10]*m[15] +
+		m[4]*m[14]*m[11] +
+		m[6]*m[8]*m[15] -
+		m[6]*m[12]*m[11] -
+		m[7]*m[8]*m[14] +
+		m[7]*m[12]*m[10]
+
+	inv[5] = m[0]*m[10]*m[15] -
+		m[0]*m[14]*m[11] -
+		m[2]*m[8]*m[15] +
+		m[2]*m[12]*m[11] +
+		m[3]*m[8]*m[14] -
+		m[3]*m[12]*m[10]
+
+	inv[6] = -m[0]*m[6]*m[15] +
+		m[0]*m[14]*m[7] +
+		m[2]*m[4]*m[15] -
+		m[2]*m[12]*m[7] -
+		m[3]*m[4]*m[14] +
+		m[3]*m[12]*m[6]
+
+	inv[7] = m[0]*m[6]*m[11] -
+		m[0]*m[10]*m[7] -
+		m[2]*m[4]*m[11] +
+		m[2]*m[8]*m[7] +
+		m[3]*m[4]*m[10] -
+		m[3]*m[8]*m[6]
+
+	inv[8] = m[4]*m[9]*m[15] -
+		m[4]*m[13]*m[11] -
+		m[5]*m[8]*m[15] +
+		m[5]*m[12]*m[11] +
+		m[7]*m[8]*m[13] -
+		m[7]*m[12]*m[9]
+
+	inv[9] = -m[0]*m[9]*m[15] +
+		m[0]*m[13]*m[11] +
+		m[1]*m[8]*m[15] -
+		m[1]*m[12]*m[11] -
+		m[3]*m[8]*m[13] +
+		m[3]*m[12]*m[9]
+
+	inv[10] = m[0]*m[5]*m[15] -
+		m[0]*m[13]*m[7] -
+		m[1]*m[4]*m[15] +
+		m[1]*m[12]*m[7] +
+		m[3]*m[4]*m[13] -
+		m[3]*m[12]*m[5]
+
+	inv[11] = -m[0]*m[5]*m[11] +
+		m[0]*m[9]*m[7] +
+		m[1]*m[4]*m[11] -
+		m[1]*m[8]*m[7] -
+		m[3]*m[4]*m[9] +
+		m[3]*m[8]*m[5]
+
+	inv[12] = -m[4]*m[9]*m[14] +
+		m[4]*m[13]*m[10] +
+		m[5]*m[8]*m[14] -
+		m[5]*m[12]*m[10] -
+		m[6]*m[8]*m[13] +
+		m[6]*m[12]*m[9]
+
+	inv[13] = m[0]*m[9]*m[14] -
+		m[0]*m[13]*m[10] -
+		m[1]*m[8]*m[14] +
+		m[1]*m[12]*m[10] +
+		m[2]*m[8]*m[13] -
+		m[2]*m[12]*m[9]
+
+	inv[14] = -m[0]*m[5]*m[14] +
+		m[0]*m[13]*m[6] +
+		m[1]*m[4]*m[14] -
+		m[1]*m[12]*m[6] -
+		m[2]*m[4]*m[13] +
+		m[2]*m[12]*m[5]
+
+	inv[15] = m[0]*m[5]*m[10] -
+		m[0]*m[9]*m[6] -
+		m[1]*m[4]*m[10] +
+		m[1]*m[8]*m[6] +
+		m[2]*m[4]*m[9] -
+		m[2]*m[8]*m[5]
+
+	det := m[0]*inv[0] + m[4]*inv[4] + m[8]*inv[8] + m[12]*inv[12]
+	if det == 0 {
+		return inv, errors.New("Cannot invert matrix")
 	}
+
+	det = 1.0 / det
+	for i := range inv {
+		inv[i] *= det
+	}
+	return inv, nil
 }

@@ -87,9 +87,20 @@ func (v Vector3) ToColor() Color {
 	return Color(r + g + b)
 }
 
+// Convert a 32bit uint (0x00RRGGBB) into a vector storing RGB
 func Vector3FromColor(i uint32) Vector3 {
 	r := float64((i&0xff0000)>>16) / 0xff
 	g := float64((i&0x00ff00)>>8) / 0xff
 	b := float64((i&0x0000ff)>>0) / 0xff
 	return Vector3{r, g, b}
+}
+
+// Scale the vector by an amount
+func (m Vector4) Scale(scale float64) Vector4 {
+	return Vector4{
+		m[0] * scale,
+		m[1] * scale,
+		m[2] * scale,
+		m[3] * scale,
+	}
 }
