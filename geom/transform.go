@@ -14,24 +14,30 @@ func NewTransform() Transform {
 	}
 }
 
-func (t *Transform) Matrix() Matrix4 {
-	return NewMatrix4Identity().Multiply(
-		NewMatrix4Translation(
-			t.Translation[0],
-			t.Translation[1],
-			t.Translation[2],
-		),
-	).Multiply(
-		NewMatrix4Rotation(
-			t.Rotation[0],
-			t.Rotation[1],
-			t.Rotation[2],
-		),
-	).Multiply(
-		NewMatrix4Scaling(
-			t.Scaling[0],
-			t.Scaling[1],
-			t.Scaling[2],
-		),
+func (t *Transform) TranslationMatrix() Matrix4 {
+	return NewMatrix4Translation(
+		t.Translation[0],
+		t.Translation[1],
+		t.Translation[2],
 	)
+}
+
+func (t *Transform) RotationMatrix() Matrix4 {
+	return NewMatrix4Rotation(
+		t.Rotation[0],
+		t.Rotation[1],
+		t.Rotation[2],
+	)
+}
+
+func (t *Transform) ScalingMatrix() Matrix4 {
+	return NewMatrix4Scaling(
+		t.Scaling[0],
+		t.Scaling[1],
+		t.Scaling[2],
+	)
+}
+
+func (t *Transform) Matrix() Matrix4 {
+	return t.TranslationMatrix().Multiply(t.RotationMatrix()).Multiply(t.ScalingMatrix())
 }

@@ -61,7 +61,7 @@ func NewMatrix4Rotation(x, y, z float64) Matrix4 {
 		0, 0, 0, 1,
 	}
 
-	return rotx.Multiply(roty.Multiply(rotz))
+	return rotz.Multiply(roty).Multiply(rotx)
 }
 
 func NewMatrix4Translation(x, y, z float64) Matrix4 {
