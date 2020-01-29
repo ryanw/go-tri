@@ -4,46 +4,61 @@ import (
 	. "math"
 )
 
+// A 2D Vector
 type Vector2 [2]float64
+
+// A 3D Vector
 type Vector3 [3]float64
+
+// A 4D Vector
 type Vector4 [4]float64
 
+// Get the value of the X axis
 func (v Vector2) X() float64 {
 	return v[0]
 }
 
+// Get the value of the Y axis
 func (v Vector2) Y() float64 {
 	return v[1]
 }
 
+// Get the value of the X axis
 func (v Vector3) X() float64 {
 	return v[0]
 }
 
+// Get the value of the Y axis
 func (v Vector3) Y() float64 {
 	return v[1]
 }
 
+// Get the value of the Y axis
 func (v Vector3) Z() float64 {
 	return v[2]
 }
 
+// Get the value of the Z axis
 func (v Vector4) X() float64 {
 	return v[0]
 }
 
+// Get the value of the Y axis
 func (v Vector4) Y() float64 {
 	return v[1]
 }
 
+// Get the value of the Z axis
 func (v Vector4) Z() float64 {
 	return v[2]
 }
 
+// Get the value of the W axis
 func (v Vector4) W() float64 {
 	return v[2]
 }
 
+// Scale the vector so the magnitude is 1.0
 func (v Vector3) Normalize() Vector3 {
 	mag := v.Magnitude()
 	return Vector3{
@@ -53,6 +68,7 @@ func (v Vector3) Normalize() Vector3 {
 	}
 }
 
+// Scale the vector by an amount
 func (v Vector3) Scale(scale float64) Vector3 {
 	return Vector3{
 		v.X() * scale,
@@ -61,6 +77,7 @@ func (v Vector3) Scale(scale float64) Vector3 {
 	}
 }
 
+// Get the dot product between two vectors
 func (left Vector3) Dot(right Vector3) float64 {
 	dot := 0.0
 
@@ -71,14 +88,17 @@ func (left Vector3) Dot(right Vector3) float64 {
 	return dot
 }
 
+// Get the magnitude (length) of the vector
 func (v Vector3) Magnitude() float64 {
 	return Sqrt(Pow(v.X(), 2) + Pow(v.Y(), 2) + Pow(v.Z(), 2))
 }
 
+// Convert a Point3 into a Vector3
 func (p *Point3) Vector3FromPoint3() Vector3 {
 	return Vector3{p[0], p[1], p[2]}
 }
 
+// Convert a vector storing RGB into a single 32bit integer: 0x00RRGGBB
 func (v Vector3) ToColor() Color {
 	r := uint32(v.X()*0xff) << 16
 	g := uint32(v.Y()*0xff) << 8
