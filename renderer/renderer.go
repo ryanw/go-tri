@@ -13,9 +13,8 @@ type Renderer struct {
 func (r *Renderer) RenderLineMesh(canvas *Canvas, mesh *LineMesh) {
 	camera := &r.Camera
 
-	mvp := camera.Projection
-	mvp = mvp.Multiply(camera.Transform.Matrix())
-	mvp = mvp.Multiply(mesh.Transform.Matrix())
+	viewProj := camera.ViewProjection()
+	mvp := viewProj.Multiply(mesh.Transform.Matrix())
 
 	for _, line := range mesh.Lines {
 		start := mvp.TransformPoint3(mesh.Vertices[line[0]])
@@ -33,9 +32,8 @@ func (r *Renderer) RenderTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
 	camera := &r.Camera
 	lightDir := Vector3{0.4, -0.7, -0.3}.Normalize()
 
-	mvp := camera.Projection
-	mvp = mvp.Multiply(camera.Transform.Matrix())
-	mvp = mvp.Multiply(mesh.Transform.Matrix())
+	viewProj := camera.ViewProjection()
+	mvp := viewProj.Multiply(mesh.Transform.Matrix())
 
 	for i, tri := range mesh.Triangles {
 		triangle := mvp.TransformTriangle3(Triangle3{
