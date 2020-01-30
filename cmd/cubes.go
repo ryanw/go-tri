@@ -115,8 +115,8 @@ func main() {
 		cube.Transform.Rotation[0] += f * dt
 		cube.Transform.Rotation[1] += f * dt
 		cube.Transform.Translation[2] = -8 - m.Sin(t*0.8)*2
-		//triCube.Transform.Rotation[0] += f * dt
-		//triCube.Transform.Rotation[1] += f * dt
+		triCube.Transform.Rotation[0] += f * dt
+		triCube.Transform.Rotation[1] += f * dt
 		triCube.Transform.Translation[2] = -8 - m.Sin(t*0.8)*2
 		plane.Transform.Rotation[1] -= f * dt
 

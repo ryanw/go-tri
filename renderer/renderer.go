@@ -33,7 +33,8 @@ func (r *Renderer) RenderTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
 	lightDir := Vector3{0.4, -0.7, -0.3}.Normalize()
 
 	viewProj := camera.ViewProjection()
-	mvp := viewProj.Multiply(mesh.Transform.Matrix())
+	model := mesh.Transform.Matrix()
+	mvp := viewProj.Multiply(model)
 
 	for i, tri := range mesh.Triangles {
 		triangle := mvp.TransformTriangle3(Triangle3{
@@ -42,8 +43,8 @@ func (r *Renderer) RenderTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
 			mesh.Vertices[tri[2]],
 		})
 
-		normal := mvp.TransformVector3(mesh.Normals[i])
-		ambient := 0.2
+		normal := model.TransformVector3(mesh.Normals[i])
+		ambient := 0.1
 		diffuse := normal.Dot(lightDir)
 		light := ambient + diffuse
 		if light < ambient {
