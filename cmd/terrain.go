@@ -25,7 +25,7 @@ func main() {
 			Transform: Transform{
 				Translation: Vector3{0, -4, 10},
 				Rotation:    Vector3{0.4, 0, 0},
-				Scaling:     Vector3{1, 1, 1},
+				Scaling:     Vector3{0.5, 1, 1},
 			},
 		},
 	}
@@ -115,6 +115,13 @@ func main() {
 					renderer.Camera.Transform.Rotation[0] -= 0.01 * m.Pi
 				case ' ':
 					showWireframe = !showWireframe
+				case '\r', '\n':
+					scaleX := &renderer.Camera.Transform.Scaling[0]
+					if *scaleX == 0.5 {
+						*scaleX = 1.0
+					} else {
+						*scaleX = 0.5
+					}
 				}
 
 			case MouseEvent:
