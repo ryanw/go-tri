@@ -28,38 +28,117 @@ func (r *Renderer) RenderLineMesh(canvas *Canvas, mesh *LineMesh) {
 	}
 }
 
+func clipTriangle(plane Plane3, tri Triangle3) []Triangle3 {
+	inside := []Point3{}
+	outside := []Point3{}
+
+	for _, point := range tri {
+		if point.DistanceToPlane3(plane) <= 0 {
+			inside = append(inside, point)
+			// TODO actually clip the triangle. For now just remove it
+			return []Triangle3{}
+		} else {
+			outside = append(outside, point)
+		}
+	}
+
+	return []Triangle3{tri}
+}
+
 func (r *Renderer) RenderTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
 	camera := &r.Camera
 	lightDir := Vector3{0.4, -0.7, -0.3}.Normalize()
 
-	viewProj := camera.ViewProjection()
+	proj := camera.Projection
+	view := camera.View()
 	model := mesh.Transform.Matrix()
-	mvp := viewProj.Multiply(model)
+	modelView := view.Multiply(model)
+	nearPlane := Plane3{
+		Point:  Point3{0.0, 0.0, -0.1},
+		Normal: Vector3{0.0, 0.0, -1.0},
+	}
 
-	for i, tri := range mesh.Triangles {
-		triangle := mvp.TransformTriangle3(Triangle3{
-			mesh.Vertices[tri[0]],
-			mesh.Vertices[tri[1]],
-			mesh.Vertices[tri[2]],
-		})
-
-		normal := model.TransformVector3(mesh.Normals[i])
-		ambient := 0.1
-		diffuse := normal.Dot(lightDir)
-		light := ambient + diffuse
-		if light < ambient {
-			light = ambient
+	for i, triIndexes := range mesh.Triangles {
+		triangle := Triangle3{
+			mesh.Vertices[triIndexes[0]],
+			mesh.Vertices[triIndexes[1]],
+			mesh.Vertices[triIndexes[2]],
 		}
-		if light > 1 {
-			light = 1
-		}
-		color := Vector3FromColor(mesh.Colors[i])
-		color = color.Scale(light)
+		triangle = modelView.TransformTriangle3(triangle)
 
-		canvas.DrawTriangle3(triangle, Cell{
-			Fg:     color.Scale(0.7).ToColor(),
-			Bg:     color.ToColor(),
-			Sprite: ' ',
-		})
+		// Clip triangles outside the view frustrum
+		triangles := clipTriangle(nearPlane, triangle)
+
+		for _, triangle = range triangles {
+			triangle = proj.TransformTriangle3(triangle)
+
+			normal := model.TransformVector3(mesh.Normals[i])
+			ambient := 0.1
+			diffuse := normal.Dot(lightDir)
+			light := ambient + diffuse
+			if light < ambient {
+				light = ambient
+			}
+			if light > 1 {
+				light = 1
+			}
+			color := Vector3FromColor(mesh.Colors[i])
+			color = color.Scale(light)
+
+			canvas.DrawTriangle3(triangle, Cell{
+				Fg:     color.Scale(0.7).ToColor(),
+				Bg:     color.ToColor(),
+				Sprite: ' ',
+			})
+		}
+	}
+}
+
+func (r *Renderer) RenderWireTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
+	camera := &r.Camera
+	lightDir := Vector3{0.4, -0.7, -0.3}.Normalize()
+
+	proj := camera.Projection
+	view := camera.View()
+	model := mesh.Transform.Matrix()
+	modelView := view.Multiply(model)
+	plane := Plane3{
+		Point:  Point3{0.0, 0.0, -0.01},
+		Normal: Vector3{0.0, 0.0, -1.0},
+	}
+
+	for i, triIndexes := range mesh.Triangles {
+		triangle := Triangle3{
+			mesh.Vertices[triIndexes[0]],
+			mesh.Vertices[triIndexes[1]],
+			mesh.Vertices[triIndexes[2]],
+		}
+		triangle = modelView.TransformTriangle3(triangle)
+
+		// Clip triangles outside the view frustrum
+		triangles := clipTriangle(plane, triangle)
+
+		for _, tri := range triangles {
+			triangle = proj.TransformTriangle3(tri)
+
+			normal := model.TransformVector3(mesh.Normals[i])
+			ambient := 0.01
+			diffuse := normal.Dot(lightDir)
+			light := ambient + diffuse
+			if light < ambient {
+				light = ambient
+			}
+			if light > 1 {
+				light = 1
+			}
+			color := Vector3FromColor(mesh.Colors[i])
+			color = color.Scale(light)
+
+			canvas.DrawWireTriangle3(triangle, Cell{
+				Fg:     0xff000000,
+				Bg:     color.Scale(0.7).ToColor(),
+				Sprite: 'x',
+			})
+		}
 	}
 }

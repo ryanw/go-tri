@@ -387,6 +387,28 @@ func (c *Canvas) DrawTriangle3(tri Triangle3, cell Cell) {
 	}
 }
 
+func (c *Canvas) DrawWireTriangle3(tri Triangle3, cell Cell) {
+	p0 := c.ScreenPoint3ToCellPoint3(tri[0]).Floor()
+	p1 := c.ScreenPoint3ToCellPoint3(tri[1]).Floor()
+	p2 := c.ScreenPoint3ToCellPoint3(tri[2]).Floor()
+	line := Line3{p0, p1}
+	c.DrawDeepLine(line, cell)
+	line = Line3{p1, p2}
+	c.DrawDeepLine(line, cell)
+	line = Line3{p2, p0}
+	c.DrawDeepLine(line, cell)
+}
+
+func (c *Canvas) ScreenPoint3ToCellPoint3(point Point3) Point3 {
+	hw := float64(c.Width) / 2
+	hh := float64(c.Height) / 2
+
+	x := point.X()*hw + hw
+	y := point.Y()*hh + hh
+
+	return Point3{x, y, point.Z()}
+}
+
 func (c *Canvas) Point3ToPoint2(point Point3) Point2 {
 	hw := float64(c.Width) / 2
 	hh := float64(c.Height) / 2
@@ -416,6 +438,7 @@ func (c *Canvas) Point3ToCoord(point Point3) [2]int {
 
 	return [2]int{x, y}
 }
+
 func (c *Canvas) DrawVectorTriangle(tri TriangleFloat, cell Cell) {
 	// Center and scale coordinates
 	hw := float64(c.Width) / 2

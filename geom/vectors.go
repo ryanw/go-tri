@@ -58,6 +58,14 @@ func (v Vector4) W() float64 {
 	return v[2]
 }
 
+func (v Vector3) ToPoint3() Point3 {
+	return Point3(v)
+}
+
+func (p Point3) ToVector3() Vector3 {
+	return Vector3(p)
+}
+
 // Scale the vector so the magnitude is 1.0
 func (v Vector3) Normalize() Vector3 {
 	mag := v.Magnitude()
