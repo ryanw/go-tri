@@ -5,7 +5,7 @@ This is my very first attempt at writing something in Go.
 It's a simple software 3D engine that runs in a unix terminal.
 
 
-    go run cmd/cubes.go
+    go run cmd/terrain.go
 
 
 ## Controls
