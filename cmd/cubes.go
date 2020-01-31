@@ -69,7 +69,7 @@ func main() {
 		Scaling:     Vector3{1, 1, 1},
 	}
 
-	plane := NewTriangleMeshPlane(8, 8)
+	plane := NewTriangleMeshPlane(32, 32)
 	plane.Transform = Transform{
 		Translation: Vector3{0, 2, -10},
 		Rotation:    Vector3{0, 0, 0},
