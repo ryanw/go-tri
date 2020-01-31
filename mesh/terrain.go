@@ -14,33 +14,26 @@ func NewTerrainMesh(w, h int) TriangleMesh {
 		Colors:    []uint32{},
 	}
 
-	noise := perlin.NewPerlin(2, 2, 1, 123)
-	noise2 := perlin.NewPerlin(2, 2, 1, 123)
+	noise := perlin.NewPerlin(2, 2, 3, 123)
 	randomHeight := func(p Point3) Point3 {
-		scale := 0.15
-		p[1] = 10 + noise.Noise2D(scale*p.X(), scale*p.Z())*25.0
+		scale := 0.1
+		p[1] = noise.Noise2D(scale*p.X(), scale*p.Z()) * 40.0
 		return p
 	}
 	colors := []uint32{
-		0xff000044,
-		0xff000088,
-		0xff0000aa,
-		0xff0000ff,
 		0xffaaaa00,
-		0xffffaa00,
 		0xff228800,
-		0xff00aa00,
-		0xff00aa00,
-		0xff00dd00,
 		0xff22aa00,
-		0xff99aa99,
-		0xff999999,
-		0xffaaaaaa,
-		0xffbbbbbb,
+		0xff00cc00,
+		0xff779966,
+		0xff779966,
+		0xff779966,
+		0xff779966,
+		0xff779966,
 	}
 	randomColor := func(p Point3) uint32 {
 		scale := 0.2
-		val := 0.5 + noise2.Noise2D(scale*p.X(), scale*p.Z())
+		val := 0.5 + noise.Noise2D(scale*p.X(), scale*p.Z())
 		// FIXME why does it go outside 0.0 - 1.0
 		if val > 1.0 {
 			val = 1.0
@@ -59,7 +52,6 @@ func NewTerrainMesh(w, h int) TriangleMesh {
 			fz := float64(y) - float64(h)/2.0
 
 			idx := len(mesh.Vertices)
-			color := randomColor(Point3{fx, 0, fz})
 
 			mesh.Vertices = append(
 				mesh.Vertices,
@@ -78,10 +70,12 @@ func NewTerrainMesh(w, h int) TriangleMesh {
 				Vector3{0, -1, 0},
 				Vector3{0, -1, 0},
 			)
-			mesh.Colors = append(
-				mesh.Colors,
-				color, color,
-			)
+
+			tri := len(mesh.Triangles)
+			color1 := randomColor(mesh.Triangle(tri - 2).Centroid())
+			color2 := randomColor(mesh.Triangle(tri - 1).Centroid())
+
+			mesh.Colors = append(mesh.Colors, color1, color2)
 		}
 	}
 

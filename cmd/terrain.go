@@ -23,9 +23,9 @@ func main() {
 		Camera: Camera{
 			Projection: NewMatrix4Perspective(float64(width)/float64(height), 45, 0.1, 1000.0),
 			Transform: Transform{
-				Translation: Vector3{0, -4, 10},
-				Rotation:    Vector3{0.4, 0, 0},
-				Scaling:     Vector3{0.5, 1, 1},
+				Translation: Vector3{0, -12, 10},
+				Rotation:    Vector3{0.25, 0, 0},
+				Scaling:     Vector3{1, 1, 1},
 			},
 		},
 	}
@@ -73,7 +73,7 @@ func main() {
 	terrain.Transform = Transform{
 		Translation: Vector3{0, 2, -10},
 		Rotation:    Vector3{0, 0, 0},
-		Scaling:     Vector3{5, 1, 5},
+		Scaling:     Vector3{10, 1, 10},
 	}
 
 	term.AltScreen()
@@ -169,7 +169,12 @@ func main() {
 		triCube.Transform.Translation[2] = -10 - m.Sin(t*2)*4
 		triCube.Transform.Translation[0] = -4 - m.Sin(t*3)
 
-		canvas.Clear()
+		canvas.ClearWithCell(Cell{
+			Fg:     0x0,
+			Bg:     0xff442c7d,
+			Depth:  1000000,
+			Sprite: ' ',
+		})
 		renderer.RenderTriangleMesh(&canvas, &triCube)
 		renderer.RenderTriangleMesh(&canvas, &terrain)
 		if showWireframe {

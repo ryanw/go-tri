@@ -11,6 +11,14 @@ type Plane3 struct {
 	Normal Vector3
 }
 
+func (t Triangle3) Centroid() Point3 {
+	x := (t[0][0] + t[1][0] + t[2][0]) / 3
+	y := (t[0][1] + t[1][1] + t[2][1]) / 3
+	z := (t[0][2] + t[1][2] + t[2][2]) / 3
+
+	return Point3{x, y, z}
+}
+
 func (p Plane3) Distance() float64 {
 	return p.Point.ToVector3().Dot(p.Normal)
 }

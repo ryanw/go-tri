@@ -14,28 +14,19 @@ func TestLineIntersectsPlane3Hits(t *testing.T) {
 		Vector3{0.0, -1.0, 0.0},
 	}
 
-	hit, point := line.IntersectsPlane3(plane)
-
-	if !hit {
-		t.Error("Line didn't hit plane")
-	}
+	point := line.IntersectsPlane3(plane)
 
 	assertValuesEqual(t, point[:], []float64{3.0, 7.0, -4.0})
 }
 
-func TestLineIntersectsPlane3Misses(t *testing.T) {
-	line := Line3{
-		Point3{3.0, -10.0, -4.0},
-		Point3{3.0, 10.0, -4.0},
-	}
-	plane := Plane3{
-		Point3{0.0, -20.0, 0.0},
-		Vector3{0.0, -1.0, 0.0},
+func TestTriangle3Centroid(t *testing.T) {
+	tri := Triangle3{
+		Point3{36, 12, 5},
+		Point3{46, 40, 16},
+		Point3{65, 20, 9},
 	}
 
-	hit, _ := line.IntersectsPlane3(plane)
+	result := tri.Centroid()
 
-	if hit {
-		t.Error("Line shouldn't hit plane")
-	}
+	assertPoint3Equal(t, result, Point3{49, 24, 10})
 }
