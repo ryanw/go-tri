@@ -69,8 +69,8 @@ func main() {
 		Scaling:     Vector3{1, 1, 1},
 	}
 
-	plane := NewTriangleMeshPlane(32, 32)
-	plane.Transform = Transform{
+	terrain := NewTerrainMesh(48, 48)
+	terrain.Transform = Transform{
 		Translation: Vector3{0, 2, -10},
 		Rotation:    Vector3{0, 0, 0},
 		Scaling:     Vector3{5, 1, 5},
@@ -164,10 +164,10 @@ func main() {
 
 		canvas.Clear()
 		renderer.RenderTriangleMesh(&canvas, &triCube)
-		renderer.RenderTriangleMesh(&canvas, &plane)
+		renderer.RenderTriangleMesh(&canvas, &terrain)
 		if showWireframe {
 			renderer.RenderWireTriangleMesh(&canvas, &triCube)
-			renderer.RenderWireTriangleMesh(&canvas, &plane)
+			renderer.RenderWireTriangleMesh(&canvas, &terrain)
 		}
 		canvas.Present(&term)
 

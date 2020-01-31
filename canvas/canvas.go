@@ -515,7 +515,7 @@ func (c *Canvas) Present(term *Terminal) {
 			}
 
 			// Send colour only if it has changed
-			color := backCell.AnsiColor()
+			color := backCell.Ansi24BitColor()
 			if color != cursorColor {
 				cursorColor = color
 				term.Write(color)
