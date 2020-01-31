@@ -21,11 +21,11 @@ func NewTriangleMeshCube() TriangleMesh {
 		Triangles: [][3]int{
 			// Front
 			[3]int{0, 1, 2},
-			[3]int{2, 0, 3},
+			[3]int{2, 3, 0},
 
 			// Back
 			[3]int{4, 5, 6},
-			[3]int{6, 4, 7},
+			[3]int{6, 7, 4},
 
 			// Left
 			[3]int{0, 3, 7},
@@ -37,11 +37,11 @@ func NewTriangleMeshCube() TriangleMesh {
 
 			// Top
 			[3]int{0, 1, 5},
-			[3]int{5, 0, 4},
+			[3]int{5, 4, 0},
 
 			// Bottom
 			[3]int{3, 2, 6},
-			[3]int{6, 3, 7},
+			[3]int{6, 7, 3},
 		},
 		Normals: []Vector3{
 			Vector3{0, 0, 1},

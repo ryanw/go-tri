@@ -148,3 +148,11 @@ func (m Vector4) Scale(scale float64) Vector4 {
 		m[3] * scale,
 	}
 }
+
+func (m1 Vector3) Cross(m2 Vector3) Vector3 {
+	x := m1.Y()*m2.Z() - m1.Z()*m2.Y()
+	y := m1.Z()*m2.X() - m1.X()*m2.Z()
+	z := m1.X()*m2.Y() - m1.Y()*m2.X()
+
+	return Vector3{x, y, z}
+}

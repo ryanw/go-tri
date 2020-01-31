@@ -52,7 +52,6 @@ func (r *Renderer) RenderTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
 	proj := camera.Projection
 	view := camera.View()
 	model := mesh.Transform.Matrix()
-	modelView := view.Multiply(model)
 	nearPlane := Plane3{
 		Point:  Point3{0.0, 0.0, -0.1},
 		Normal: Vector3{0.0, 0.0, -1.0},
@@ -64,7 +63,17 @@ func (r *Renderer) RenderTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
 			mesh.Vertices[triIndexes[1]],
 			mesh.Vertices[triIndexes[2]],
 		}
-		triangle = modelView.TransformTriangle3(triangle)
+
+		// Move to world space
+		triangle = model.TransformTriangle3(triangle)
+
+		// Calculate normal in world space
+		line1 := triangle[2].ToVector3().Sub(triangle[0].ToVector3())
+		line2 := triangle[1].ToVector3().Sub(triangle[0].ToVector3())
+		normal := line1.Cross(line2).Normalize()
+
+		// Move to view space
+		triangle = view.TransformTriangle3(triangle)
 
 		// Clip triangles outside the view frustrum
 		triangles := clipTriangle(nearPlane, triangle)
@@ -72,7 +81,6 @@ func (r *Renderer) RenderTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
 		for _, triangle = range triangles {
 			triangle = proj.TransformTriangle3(triangle)
 
-			normal := model.TransformVector3(mesh.Normals[i])
 			ambient := 0.1
 			diffuse := normal.Dot(lightDir)
 			light := ambient + diffuse
