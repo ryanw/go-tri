@@ -498,7 +498,7 @@ func (c *Canvas) Present(term *Terminal) {
 	}
 
 	cursorX, cursorY := -1, -1
-	var cursorFg, cursorBg Color = 0x0, 0x0
+	var cursorColor string = ""
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			backCell := c.GetBack(x, y)
@@ -514,11 +514,11 @@ func (c *Canvas) Present(term *Terminal) {
 				term.MoveTo(Position{x, y})
 			}
 
-			if cursorFg != backCell.Fg || cursorBg != backCell.Bg {
-				cursorFg = backCell.Fg
-				cursorBg = backCell.Bg
-				// Write pixel colour
-				term.Write(backCell.Ansi24BitColor())
+			// Send colour only if it has changed
+			color := backCell.AnsiColor()
+			if color != cursorColor {
+				cursorColor = color
+				term.Write(color)
 			}
 
 			if frontCell.Fg != backCell.Fg || frontCell.Bg != backCell.Bg || backCell.Sprite != frontCell.Sprite {
