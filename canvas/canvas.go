@@ -97,7 +97,7 @@ func (c *Canvas) GetFront(x, y int) *Cell {
 		return nil
 	}
 	idx := c.positionToIndex(x, y)
-	if idx > len(c.front) {
+	if idx >= len(c.front) {
 		return nil
 	}
 	return &c.front[idx]
@@ -108,7 +108,7 @@ func (c *Canvas) GetBack(x, y int) *Cell {
 		return nil
 	}
 	idx := c.positionToIndex(x, y)
-	if idx > len(c.back) {
+	if idx >= len(c.back) {
 		return nil
 	}
 	return &c.back[idx]
