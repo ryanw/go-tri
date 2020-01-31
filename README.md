@@ -13,4 +13,4 @@ It's a simple software 3D engine that runs in a unix terminal.
 Move around with  `w` `a` `s` `d`, up and down with `q` `e`. Click and drag the mouse to turn the camera, or use `<` `>` `z` `x`.
 
 
-![Screenshot](https://i.imgur.com/yAR6Xs3.gif)
+![Screenshot](https://i.imgur.com/XjHAJqG.png)
