@@ -23,8 +23,8 @@ func main() {
 		Camera: Camera{
 			Projection: NewMatrix4Perspective(float64(width)/float64(height), 45, 0.1, 1000.0),
 			Transform: Transform{
-				Translation: Vector3{0, 0, 0},
-				Rotation:    Vector3{0, 0, 0},
+				Translation: Vector3{0, -4, 10},
+				Rotation:    Vector3{0.4, 0, 0},
 				Scaling:     Vector3{1, 1, 1},
 			},
 		},
@@ -69,11 +69,11 @@ func main() {
 		Scaling:     Vector3{1, 1, 1},
 	}
 
-	plane := NewTriangleMeshPlane(4, 4)
+	plane := NewTriangleMeshPlane(8, 8)
 	plane.Transform = Transform{
 		Translation: Vector3{0, 2, -10},
 		Rotation:    Vector3{0, 0, 0},
-		Scaling:     Vector3{3, 1, 3},
+		Scaling:     Vector3{5, 1, 5},
 	}
 
 	term.AltScreen()
@@ -82,12 +82,40 @@ func main() {
 	term.EnableMouse()
 	term.Clear()
 
+	mouseX, mouseY := -1.0, -1.0
+	showWireframe := false
+
 	// User input events
 	go func() {
 		for {
 			event := term.NextEvent()
 			switch event.EventType {
 			case KeyEvent:
+				velocity := 0.5
+				switch event.Key {
+				case 'w':
+					renderer.Camera.Translate(0, 0, -velocity)
+				case 's':
+					renderer.Camera.Translate(0, 0, velocity)
+				case 'a':
+					renderer.Camera.Translate(-velocity, 0, 0)
+				case 'd':
+					renderer.Camera.Translate(velocity, 0, 0)
+				case 'e':
+					renderer.Camera.Translate(0, -velocity, 0)
+				case 'q':
+					renderer.Camera.Translate(0, velocity, 0)
+				case ',':
+					renderer.Camera.Transform.Rotation[1] += 0.01 * m.Pi
+				case '.':
+					renderer.Camera.Transform.Rotation[1] -= 0.01 * m.Pi
+				case 'z':
+					renderer.Camera.Transform.Rotation[0] += 0.01 * m.Pi
+				case 'x':
+					renderer.Camera.Transform.Rotation[0] -= 0.01 * m.Pi
+				case ' ':
+					showWireframe = !showWireframe
+				}
 
 			case MouseEvent:
 				switch event.MouseAction {
@@ -96,10 +124,23 @@ func main() {
 					y := float64(event.MouseY)
 					vx := x / float64(width)
 					vy := y / float64(height)
-					triCube.Transform.Rotation[0] = m.Pi * vy * 2
-					triCube.Transform.Rotation[1] = m.Pi * -vx * 2
+					if mouseX > -1.0 {
+						renderer.Camera.Transform.Rotation[1] += (mouseX - vx) * m.Pi
+					}
+					if mouseY > -1.0 {
+						renderer.Camera.Transform.Rotation[0] -= (mouseY - vy) * m.Pi
+					}
+					mouseX = vx
+					mouseY = vy
 
 				case MouseDown:
+					x := float64(event.MouseX)
+					y := float64(event.MouseY)
+					mouseX = x / float64(width)
+					mouseY = y / float64(height)
+
+				case MouseUp:
+					mouseX, mouseY = -1.0, -1.0
 				}
 			}
 		}
@@ -114,16 +155,21 @@ func main() {
 
 		cube.Transform.Rotation[0] += f * dt
 		cube.Transform.Rotation[1] += f * dt
-		cube.Transform.Translation[2] = -8 - m.Sin(t*0.8)*2
+		cube.Transform.Translation[2] = -10 - m.Sin(t*2)*4
+		cube.Transform.Translation[0] = 4 + m.Sin(t*3)
 		triCube.Transform.Rotation[0] += f * dt
 		triCube.Transform.Rotation[1] += f * dt
-		triCube.Transform.Translation[2] = -8 - m.Sin(t*0.8)*2
-		plane.Transform.Rotation[1] -= f * dt
+		triCube.Transform.Translation[2] = -10 - m.Sin(t*2)*4
+		triCube.Transform.Translation[0] = -4 - m.Sin(t*3)
 
 		canvas.Clear()
 		renderer.RenderLineMesh(&canvas, &cube)
 		renderer.RenderTriangleMesh(&canvas, &triCube)
 		renderer.RenderTriangleMesh(&canvas, &plane)
+		if showWireframe {
+			renderer.RenderWireTriangleMesh(&canvas, &triCube)
+			renderer.RenderWireTriangleMesh(&canvas, &plane)
+		}
 		canvas.Present(&term)
 
 		time.Sleep((1000 / framerate) * time.Millisecond)
