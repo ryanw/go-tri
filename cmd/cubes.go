@@ -91,7 +91,7 @@ func main() {
 			event := term.NextEvent()
 			switch event.EventType {
 			case KeyEvent:
-				velocity := 0.5
+				velocity := 1.5
 				switch event.Key {
 				case 'w':
 					renderer.Camera.Translate(0, 0, -velocity)
