@@ -163,7 +163,6 @@ func main() {
 		triCube.Transform.Translation[0] = -4 - m.Sin(t*3)
 
 		canvas.Clear()
-		renderer.RenderLineMesh(&canvas, &cube)
 		renderer.RenderTriangleMesh(&canvas, &triCube)
 		renderer.RenderTriangleMesh(&canvas, &plane)
 		if showWireframe {

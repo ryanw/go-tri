@@ -15,14 +15,6 @@ func NewTriangleMeshPlane(w, h int) TriangleMesh {
 		Colors:    []uint32{},
 	}
 
-	colors := []uint32{
-		0xff880000,
-		0xff008800,
-		0xff000088,
-		0xff880088,
-		0xff888800,
-		0xff008888,
-	}
 
 	heights := map[[2]int]float64{}
 	randomHeight := func(p Point3) Point3 {
@@ -44,9 +36,10 @@ func NewTriangleMeshPlane(w, h int) TriangleMesh {
 			fz := float64(y) - float64(h)/2.0
 
 			idx := len(mesh.Vertices)
-			//cidx := (x + y) % len(colors)
-			cidx := int(rand.Float64() * float64(len(colors)))
-			color := colors[cidx]
+			r := uint32(rand.Float64()*float64(0xff)) << 16
+			g := uint32(rand.Float64()*float64(0xff)) << 8
+			b := uint32(rand.Float64()*float64(0xff)) << 0
+			color := 0xff000000 + r + g + b
 			mesh.Vertices = append(
 				mesh.Vertices,
 				randomHeight(Point3{fx + 0, 0, fz + 1}),
