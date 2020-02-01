@@ -55,15 +55,8 @@ func main() {
 		}
 	}()
 
-	cube := NewLineMeshCube()
+	cube := NewTriangleMeshCube()
 	cube.Transform = Transform{
-		Translation: Vector3{2, 0, -7},
-		Rotation:    Vector3{0, 0, 0},
-		Scaling:     Vector3{1, 1, 1},
-	}
-
-	triCube := NewTriangleMeshCube()
-	triCube.Transform = Transform{
 		Translation: Vector3{-2, 0, -7},
 		Rotation:    Vector3{0, 0, 0},
 		Scaling:     Vector3{1, 1, 1},
@@ -74,6 +67,13 @@ func main() {
 		Translation: Vector3{0, 2, -10},
 		Rotation:    Vector3{0, 0, 0},
 		Scaling:     Vector3{10, 1, 10},
+	}
+
+	monkey, _ := NewMeshFromObjPath("./assets/suzanne.obj")
+	monkey.Transform = Transform{
+		Translation: Vector3{-3, -8, -20},
+		Rotation:    Vector3{0, 0, 0},
+		Scaling:     Vector3{3, 3, 3},
 	}
 
 	term.AltScreen()
@@ -93,6 +93,8 @@ func main() {
 			case KeyEvent:
 				velocity := 1.5
 				switch event.Key {
+				case 'c':
+					term.Clear()
 				case 'w':
 					renderer.Camera.Translate(0, 0, -velocity)
 				case 's':
@@ -163,11 +165,8 @@ func main() {
 		cube.Transform.Rotation[0] += f * dt
 		cube.Transform.Rotation[1] += f * dt
 		cube.Transform.Translation[2] = -10 - m.Sin(t*2)*4
-		cube.Transform.Translation[0] = 4 + m.Sin(t*3)
-		triCube.Transform.Rotation[0] += f * dt
-		triCube.Transform.Rotation[1] += f * dt
-		triCube.Transform.Translation[2] = -10 - m.Sin(t*2)*4
-		triCube.Transform.Translation[0] = -4 - m.Sin(t*3)
+		cube.Transform.Translation[0] = -4 - m.Sin(t*3)
+		monkey.Transform.Rotation[1] += f * dt * 2
 
 		canvas.ClearWithCell(Cell{
 			Fg:     0x0,
@@ -175,11 +174,13 @@ func main() {
 			Depth:  1000000,
 			Sprite: ' ',
 		})
-		renderer.RenderTriangleMesh(&canvas, &triCube)
+		renderer.RenderTriangleMesh(&canvas, &cube)
 		renderer.RenderTriangleMesh(&canvas, &terrain)
+		renderer.RenderTriangleMesh(&canvas, &monkey)
 		if showWireframe {
-			renderer.RenderWireTriangleMesh(&canvas, &triCube)
+			renderer.RenderWireTriangleMesh(&canvas, &cube)
 			renderer.RenderWireTriangleMesh(&canvas, &terrain)
+			renderer.RenderWireTriangleMesh(&canvas, &monkey)
 		}
 		canvas.Present(&term)
 
