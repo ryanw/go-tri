@@ -525,11 +525,14 @@ func (c *Canvas) Present(term *Terminal) {
 			if backCell == nil || frontCell == nil || backCell == frontCell {
 				continue
 			}
+			if frontCell.Fg == backCell.Fg && frontCell.Bg == backCell.Bg && backCell.Sprite == frontCell.Sprite {
+				continue
+			}
 
 			if x != cursorX || y != cursorY {
 				cursorX = x
 				cursorY = y
-				term.MoveTo(Position{x, y})
+				term.MoveTo(Position{X: x, Y: y})
 			}
 
 			// Send colour only if it has changed
@@ -539,12 +542,10 @@ func (c *Canvas) Present(term *Terminal) {
 				term.Write(color)
 			}
 
-			if frontCell.Fg != backCell.Fg || frontCell.Bg != backCell.Bg || backCell.Sprite != frontCell.Sprite {
-				*frontCell = *backCell
-				// Write pixel ascii
-				term.WriteRune(frontCell.Sprite)
-				cursorX = x + 1
-			}
+			*frontCell = *backCell
+			// Write pixel ascii
+			term.WriteRune(frontCell.Sprite)
+			cursorX = x + 1
 		}
 	}
 	term.Flush()
