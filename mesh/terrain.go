@@ -14,7 +14,7 @@ func NewTerrainMesh(w, h int) TriangleMesh {
 		Colors:    []uint32{},
 	}
 
-	noise := perlin.NewPerlin(2, 2, 3, 123)
+	noise := perlin.NewPerlin(2, 2, 3, 666)
 	randomHeight := func(p Point3) Point3 {
 		scale := 0.1
 		p[1] = noise.Noise2D(scale*p.X(), scale*p.Z()) * 40.0

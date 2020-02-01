@@ -321,7 +321,16 @@ func (c *Canvas) fillFlatBottomTriangle3(tri Triangle3, cell Cell) {
 	z1 := tri[0].Z()
 
 	for y := p0.Y(); y <= p1.Y(); y++ {
-		line := Line3{Point3{x0, y, z0}, Point3{x1, y, z1}}
+		var sx0, sx1 float64
+		if slope0 < slope1 {
+			sx0 = Floor(x0)
+			sx1 = Floor(x1)
+		} else {
+			sx0 = Floor(x0)
+			sx1 = Floor(x1)
+		}
+
+		line := Line3{Point3{sx0, y, z0}, Point3{sx1, y, z1}}
 		c.DrawDeepLine(line, cell)
 		x0 += slope0
 		x1 += slope1
@@ -352,7 +361,16 @@ func (c *Canvas) fillFlatTopTriangle3(tri Triangle3, cell Cell) {
 	z1 := tri[2].Z()
 
 	for y := p2.Y(); y >= p0.Y(); y-- {
-		line := Line3{Point3{x0, y, z0}, Point3{x1, y, z1}}
+		var sx0, sx1 float64
+		if slope0 > slope1 {
+			sx0 = Floor(x0)
+			sx1 = Floor(x1)
+		} else {
+			sx0 = Floor(x0)
+			sx1 = Floor(x1)
+		}
+
+		line := Line3{Point3{sx0, y, z0}, Point3{sx1, y, z1}}
 		c.DrawDeepLine(line, cell)
 		x0 -= slope0
 		x1 -= slope1
