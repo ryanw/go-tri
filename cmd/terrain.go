@@ -168,6 +168,7 @@ func main() {
 		cube.Transform.Translation[0] = -4 - m.Sin(t*3)
 		monkey.Transform.Rotation[1] += f * dt * 2
 
+		canvas.Lock()
 		canvas.ClearWithCell(Cell{
 			Fg:     0x0,
 			Bg:     0xff442c7d,
@@ -183,6 +184,7 @@ func main() {
 			renderer.RenderWireTriangleMesh(&canvas, &monkey)
 		}
 		canvas.Present(&term)
+		canvas.Unlock()
 
 		time.Sleep((1000 / framerate) * time.Millisecond)
 		t += dt

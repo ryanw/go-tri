@@ -4,6 +4,7 @@ import (
 	"fmt"
 	. "math"
 	"sort"
+	"sync"
 	. "tri/geom"
 	. "tri/terminal"
 )
@@ -55,6 +56,7 @@ type Canvas struct {
 	Height int
 	front  []Cell
 	back   []Cell
+	mux    sync.Mutex
 }
 
 func NewCanvas(width, height int) Canvas {
@@ -64,6 +66,14 @@ func NewCanvas(width, height int) Canvas {
 		front:  make([]Cell, width*height),
 		back:   make([]Cell, width*height),
 	}
+}
+
+func (c *Canvas) Lock() {
+	c.mux.Lock()
+}
+
+func (c *Canvas) Unlock() {
+	c.mux.Unlock()
 }
 
 func (c *Canvas) IsOutOfBounds(x, y int) bool {
@@ -115,11 +125,13 @@ func (c *Canvas) GetBack(x, y int) *Cell {
 }
 
 func (c *Canvas) Resize(width, height int) {
+	c.Lock()
 	c.Width = width
 	c.Height = height
 	// FIXME Don't wipe out what's already drawn
 	c.front = make([]Cell, width*height)
 	c.back = make([]Cell, width*height)
+	c.Unlock()
 }
 
 func (c *Canvas) Clear() {
