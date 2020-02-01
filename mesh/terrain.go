@@ -5,7 +5,7 @@ import (
 	. "tri/geom"
 )
 
-func NewTerrainMesh(w, h int) TriangleMesh {
+func NewTerrainMesh(w, h int, scale float64) TriangleMesh {
 	mesh := TriangleMesh{
 		Transform: NewTransform(),
 		Vertices:  []Point3{},
@@ -16,15 +16,20 @@ func NewTerrainMesh(w, h int) TriangleMesh {
 
 	noise := perlin.NewPerlin(2, 2, 3, 666)
 	randomHeight := func(p Point3) Point3 {
-		scale := 0.1
-		p[1] = noise.Noise2D(scale*p.X(), scale*p.Z()) * 40.0
+		p[1] = noise.Noise2D(scale*p.X(), scale*p.Z())
 		return p
 	}
 	colors := []uint32{
+		0xff0000aa,
+		0xff0033cc,
 		0xffaaaa00,
+		0xff99aa00,
 		0xff228800,
 		0xff22aa00,
+		0xff00aa00,
+		0xff00bb00,
 		0xff00cc00,
+		0xff00dd00,
 		0xff779966,
 		0xff779966,
 		0xff779966,
@@ -32,7 +37,6 @@ func NewTerrainMesh(w, h int) TriangleMesh {
 		0xff779966,
 	}
 	randomColor := func(p Point3) uint32 {
-		scale := 0.2
 		val := 0.5 + noise.Noise2D(scale*p.X(), scale*p.Z())
 		// FIXME why does it go outside 0.0 - 1.0
 		if val > 1.0 {

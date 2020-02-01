@@ -62,11 +62,11 @@ func main() {
 		Scaling:     Vector3{1, 1, 1},
 	}
 
-	terrain := NewTerrainMesh(48, 48)
+	terrain := NewTerrainMesh(32, 32, 0.1)
 	terrain.Transform = Transform{
 		Translation: Vector3{0, 2, -10},
 		Rotation:    Vector3{0, 0, 0},
-		Scaling:     Vector3{10, 1, 10},
+		Scaling:     Vector3{20, 50, 20},
 	}
 
 	monkey, _ := NewMeshFromObjPath("./assets/suzanne.obj")
