@@ -1,6 +1,9 @@
 package window
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
 	. "tri/canvas"
 	. "tri/geom"
 	. "tri/mesh"
@@ -37,6 +40,24 @@ func New() Window {
 	}
 }
 
+func (w *Window) ListenForResize() {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGWINCH)
+
+	go func() {
+		for sig := range c {
+			switch sig {
+			// Terminal was resized
+			case syscall.SIGWINCH:
+				w.Terminal.UpdateSize()
+				width, height := w.Terminal.Size()
+				w.Canvas.Resize(width, height)
+				w.Renderer.Camera.Projection = NewMatrix4Perspective(float64(width)/float64(height), 45, 0.1, 1000.0)
+			}
+		}
+	}()
+}
+
 func (w *Window) Open() {
 	w.Terminal.AltScreen()
 	w.Terminal.HideCursor()
@@ -45,6 +66,7 @@ func (w *Window) Open() {
 	//w.Terminal.DisableCtrlC()
 	w.Terminal.Clear()
 	w.Terminal.Flush()
+	w.ListenForResize()
 }
 
 func (w *Window) Close() {
@@ -54,10 +76,6 @@ func (w *Window) Close() {
 	w.Terminal.EnableCtrlC()
 	w.Terminal.MainScreen()
 	w.Terminal.Flush()
-}
-
-func (w *Window) Draw(dt float64) {
-	w.Canvas.Clear()
 }
 
 func (w *Window) Present() {
