@@ -129,9 +129,12 @@ func (r *Renderer) RenderWireTriangleMesh(canvas *Canvas, mesh *TriangleMesh) {
 		for _, tri := range triangles {
 			triangle = proj.TransformTriangle3(tri)
 
-			normal := model.TransformVector3(mesh.Normals[i])
 			ambient := 0.01
-			diffuse := normal.Dot(lightDir)
+			diffuse := 0.00
+			if len(mesh.Normals) > i {
+				normal := model.TransformVector3(mesh.Normals[i])
+				diffuse = normal.Dot(lightDir)
+			}
 			light := ambient + diffuse
 			if light < ambient {
 				light = ambient
