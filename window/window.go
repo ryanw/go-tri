@@ -6,7 +6,6 @@ import (
 	"syscall"
 	. "tri/canvas"
 	. "tri/geom"
-	. "tri/mesh"
 	. "tri/renderer"
 	. "tri/terminal"
 )
@@ -86,6 +85,8 @@ func (w *Window) Clear() {
 	w.Canvas.Clear()
 }
 
-func (w *Window) DrawMesh(mesh *TriangleMesh) {
-	w.Renderer.RenderTriangleMesh(&w.Canvas, mesh)
+func (w *Window) Draw(drawable Drawable) {
+	w.Canvas.Lock()
+	w.Renderer.RenderDrawable(&w.Canvas, drawable)
+	w.Canvas.Unlock()
 }

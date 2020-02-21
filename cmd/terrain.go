@@ -10,6 +10,7 @@ import (
 	. "tri/geom"
 	. "tri/mesh"
 	. "tri/renderer"
+	. "tri/scene"
 	. "tri/terminal"
 )
 
@@ -55,27 +56,6 @@ func main() {
 		}
 	}()
 
-	cube := NewTriangleMeshCube()
-	cube.Transform = Transform{
-		Translation: Vector3{-2, 0, -7},
-		Rotation:    Vector3{0, 0, 0},
-		Scaling:     Vector3{1, 1, 1},
-	}
-
-	terrain := NewTerrainMesh(32, 32, 0.1)
-	terrain.Transform = Transform{
-		Translation: Vector3{0, 2, -10},
-		Rotation:    Vector3{0, 0, 0},
-		Scaling:     Vector3{20, 50, 20},
-	}
-
-	monkey, _ := NewMeshFromObjPath("./assets/suzanne.obj")
-	monkey.Transform = Transform{
-		Translation: Vector3{-3, -8, -20},
-		Rotation:    Vector3{0, 0, 0},
-		Scaling:     Vector3{3, 3, 3},
-	}
-
 	term.AltScreen()
 	term.HideCursor()
 	term.RawMode()
@@ -83,7 +63,6 @@ func main() {
 	term.Clear()
 
 	mouseX, mouseY := -1.0, -1.0
-	showWireframe := false
 
 	// User input events
 	go func() {
@@ -115,8 +94,6 @@ func main() {
 					renderer.Camera.Transform.Rotation[0] += 0.01 * m.Pi
 				case 'x':
 					renderer.Camera.Transform.Rotation[0] -= 0.01 * m.Pi
-				case ' ':
-					showWireframe = !showWireframe
 				case '\r', '\n':
 					scaleX := &renderer.Camera.Transform.Scaling[0]
 					if *scaleX == 0.5 {
@@ -155,6 +132,33 @@ func main() {
 		}
 	}()
 
+	// Create a scene
+	cube := NewTriangleMeshCube()
+	cube.Transform = Transform{
+		Translation: Vector3{0, -10, 0},
+		Rotation:    Vector3{0, 0, 0},
+		Scaling:     Vector3{1, 1, 1},
+	}
+
+	scene := NewScene()
+	cubeId := scene.Add(cube)
+
+	chunkSize := 8
+	go func() {
+		for x := -2; x < 2; x++ {
+			for y := -2; y < 2; y++ {
+				time.Sleep(100 * time.Millisecond)
+				terrain := NewTerrainMesh(x*chunkSize, y*chunkSize, chunkSize, chunkSize, 0.1)
+				terrain.Transform = Transform{
+					Translation: Vector3{float64(x * chunkSize), 0, float64(y * chunkSize)},
+					Rotation:    Vector3{0, 0, 0},
+					Scaling:     Vector3{1, 5, 1},
+				}
+				scene.Add(terrain)
+			}
+		}
+	}()
+
 	// Main loop
 	t := 1.0
 	for {
@@ -162,11 +166,13 @@ func main() {
 
 		f := 0.5 * m.Pi
 
-		cube.Transform.Rotation[0] += f * dt
-		cube.Transform.Rotation[1] += f * dt
-		cube.Transform.Translation[2] = -10 - m.Sin(t*2)*4
-		cube.Transform.Translation[0] = -4 - m.Sin(t*3)
-		monkey.Transform.Rotation[1] += f * dt * 2
+		cubeMesh := scene.Mesh(cubeId)
+		cubeMesh.Transform.Rotation[0] += f * dt
+		cubeMesh.Transform.Rotation[1] += f * dt
+		if len(scene.Meshes) > 7 {
+			terrainMesh := scene.Mesh(6)
+			terrainMesh.Transform.Translation[1] = 2 * -m.Abs(m.Sin(3*t))
+		}
 
 		canvas.Lock()
 		canvas.ClearWithCell(Cell{
@@ -175,14 +181,7 @@ func main() {
 			Depth:  1000000,
 			Sprite: ' ',
 		})
-		renderer.RenderTriangleMesh(&canvas, &cube)
-		renderer.RenderTriangleMesh(&canvas, &terrain)
-		renderer.RenderTriangleMesh(&canvas, &monkey)
-		if showWireframe {
-			renderer.RenderWireTriangleMesh(&canvas, &cube)
-			renderer.RenderWireTriangleMesh(&canvas, &terrain)
-			renderer.RenderWireTriangleMesh(&canvas, &monkey)
-		}
+		renderer.RenderDrawable(&canvas, &scene)
 		canvas.Present(&term)
 		canvas.Unlock()
 
