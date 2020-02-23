@@ -1,7 +1,6 @@
 package canvas
 
 import (
-	"fmt"
 	. "math"
 	"sort"
 	"sync"
@@ -27,28 +26,6 @@ func (t *Triangle) ToFloat() TriangleFloat {
 			float64(t[2][1]),
 		},
 	}
-}
-
-type Cell struct {
-	Fg     Color
-	Bg     Color
-	Depth  float64
-	Sprite rune
-}
-
-func (c *Cell) AnsiColor() string {
-	return fmt.Sprintf("\x1b[38;5;%dm\x1b[48;5;%dm", c.Fg.ToAnsi(), c.Bg.ToAnsi())
-}
-
-func (c *Cell) Ansi24BitColor() string {
-	fr := ((c.Fg & 0x00ff0000) >> 16)
-	fg := ((c.Fg & 0x0000ff00) >> 8)
-	fb := ((c.Fg & 0x000000ff) >> 0)
-	br := ((c.Bg & 0x00ff0000) >> 16)
-	bg := ((c.Bg & 0x0000ff00) >> 8)
-	bb := ((c.Bg & 0x000000ff) >> 0)
-
-	return fmt.Sprintf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm", fr, fg, fb, br, bg, bb)
 }
 
 type Canvas struct {
@@ -146,6 +123,39 @@ func (c *Canvas) Clear() {
 func (c *Canvas) ClearWithCell(cell Cell) {
 	for i := range c.back {
 		c.back[i] = cell
+	}
+}
+
+// Draw one canvas onto another
+func (c *Canvas) DrawCanvas(dstX, dstY int, other *Canvas) {
+
+	w := other.Width
+	h := other.Height
+
+	rw := (dstX + w) - c.Width
+	rh := (dstY + h) - c.Height
+	if rw > 0 {
+		w -= rw
+	}
+	if rh > 0 {
+		h -= rh
+	}
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			dst := c.Get(dstX+x, dstY+y)
+			src := other.Get(x, y)
+
+			*dst = dst.Blend(*src)
+		}
+	}
+}
+
+func (c *Canvas) DrawText(dstX, dstY int, text string) {
+	for i, char := range text {
+		dst := c.Get(dstX+i, dstY)
+		*dst = dst.Blend(Cell{
+			Sprite: char,
+		})
 	}
 }
 

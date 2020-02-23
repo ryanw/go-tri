@@ -85,8 +85,14 @@ func (w *Window) Clear() {
 	w.Canvas.Clear()
 }
 
-func (w *Window) Draw(drawable Drawable) {
+func (w *Window) Draw(drawable Drawable) int {
 	w.Canvas.Lock()
-	w.Renderer.RenderDrawable(&w.Canvas, drawable)
-	w.Canvas.Unlock()
+	defer w.Canvas.Unlock()
+	return w.Renderer.RenderDrawable(&w.Canvas, drawable)
+}
+
+func (w *Window) DrawCanvas(x, y int, canvas *Canvas) {
+	w.Canvas.Lock()
+	defer w.Canvas.Unlock()
+	w.Canvas.DrawCanvas(x, y, canvas)
 }

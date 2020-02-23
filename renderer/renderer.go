@@ -26,7 +26,8 @@ func clipTriangle(plane Plane3, tri Triangle3) []Triangle3 {
 	return []Triangle3{tri}
 }
 
-func (r *Renderer) RenderDrawable(canvas *Canvas, mesh Drawable) {
+func (r *Renderer) RenderDrawable(canvas *Canvas, mesh Drawable) int {
+	count := 0
 	camera := &r.Camera
 	lightDir := Vector3{0.4, -0.7, -0.3}.Normalize()
 
@@ -64,6 +65,7 @@ func (r *Renderer) RenderDrawable(canvas *Canvas, mesh Drawable) {
 		triangles := clipTriangle(nearPlane, triangle)
 
 		for _, triangle = range triangles {
+			count += 1
 			triangle = proj.TransformTriangle3(triangle)
 
 			ambient := 0.1
@@ -80,8 +82,10 @@ func (r *Renderer) RenderDrawable(canvas *Canvas, mesh Drawable) {
 			canvas.DrawTriangle3(triangle, Cell{
 				Fg:     color.Scale(0.7).ToColor(),
 				Bg:     color.ToColor(),
-				Sprite: 'o',
+				Sprite: ' ',
 			})
 		}
 	}
+
+	return count
 }
